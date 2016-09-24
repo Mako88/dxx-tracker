@@ -18,6 +18,7 @@ The tracker has 3 functions:
 "Socket=127.0.0.1:42424,Name=Bob's Game,Players=5/Socket=192.168.1.1:12345,Name=Test/Socket=55.55.55.55:500,Name=Test 2,Score=12"
 ```
 would show there are 3 games as follows:
+
  1.
  ```
      IP: 127.0.0.1
