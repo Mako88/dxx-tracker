@@ -12,20 +12,30 @@ The tracker has 3 functions:
 
 2. Removing games fromt he tracker. If the tracker recieves a packet with the string "end", it will remove any game currently hosted by the IP address & port it received the packet from.
 
-3. Sending game information. If the tracker receives a packet with the string "call", it will send a list of all currently running games to the client. This will be formatted as a string, with options set with "=", options separated by ",", and games separated by "/". (For example, the string "Socket=127.0.0.1:42424,Name=Bob's Game,Players=5/Socket=192.168.1.1:12345,Name=Test/Socket=55.55.55.55:500,Name=Test 2,Score=12" would show there are 3 games as follows:
-  1.
+3. Sending game information. If the tracker receives a packet with the string "call", it will send a list of all currently running games to the client. This will be formatted as a string, with options set with "=", options separated by ",", and games separated by "/". (For example, the string
+```
+"Socket=127.0.0.1:42424,Name=Bob's Game,Players=5/Socket=192.168.1.1:12345,Name=Test/Socket=55.55.55.55:500,Name=Test 2,Score=12"
+```
+would show there are 3 games as follows:
+ 1.
+ ```
      IP: 127.0.0.1
      Port: 42424
      Name: Bob's Game
      Players: 5
-  2.
+ ```
+ 2.
+ ```
      IP: 192.168.1.1
      Port: 12345
      Name: Test
-  3.
+ ```
+ 3.
+ ```
      IP: 55.55.55.55
      Port: 500
      Name: Test 2
      Score: 12
+ ```
      
 Note: The "Socket" variable is automatically added by the tracker to the beginning of each game string. Any required variables must be decided by the client.
