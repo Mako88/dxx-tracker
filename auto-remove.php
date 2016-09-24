@@ -1,7 +1,6 @@
 <?php
 
 while(1) {
-    echo "Checking games...\n";
     while(file_exists("lock")) { usleep(100000); }
     touch("lock");
     $games = json_decode(file_get_contents('games.json'), true);
