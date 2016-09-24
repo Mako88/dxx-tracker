@@ -1,6 +1,6 @@
 <?php
 
-$socket = stream_socket_server("udp://127.0.0.1:9999", $errno, $errstr, STREAM_SERVER_BIND);
+$socket = stream_socket_server("udp://0.0.0.0:9999", $errno, $errstr, STREAM_SERVER_BIND);
 
 if (!$socket) {
     die("$errstr ($errno)");
