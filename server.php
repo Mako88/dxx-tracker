@@ -13,6 +13,8 @@ while(1) {
     
     switch($pkt) {
         case "call":
+            while(file_exists("lock")) { usleep(100000); }
+            touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
             $result = "";
             
@@ -28,9 +30,12 @@ while(1) {
             $result = rtrim($result, "/");
                 
             stream_socket_sendto($socket, $result, 0, $peer);
+            unlink("lock");
             break;
         
         case "end":
+            while(file_exists("lock")) { usleep(100000); }
+            touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
             foreach($games as $index => $game) {
                 if($game['Socket'] == $peer) {
@@ -39,10 +44,13 @@ while(1) {
             }
             $games = array_values($games);
             file_put_contents("games.json", json_encode($games));
+            unlink("lock");
             break;
             
         default:
             $running = false;
+            while(file_exists("lock")) { usleep(100000); }
+            touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
             $current = array("Socket"=>$peer) + array_combine($p[1], $p[2]) + array("Time"=>time());
@@ -59,6 +67,7 @@ while(1) {
             }
             
             file_put_contents("games.json", json_encode($games));
+            unlink("lock");
     }
     echo "Recieved " . $pkt . " from " . $peer . "\n";
     

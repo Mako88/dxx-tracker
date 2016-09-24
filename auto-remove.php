@@ -2,6 +2,10 @@
 
 while(1) {
     echo "Checking games...\n";
+    while(file_exists("lock")) {
+        usleep(100000);
+    }
+    touch("lock");
     $games = json_decode(file_get_contents('games.json'), true);
     $unset = false;
 
@@ -20,7 +24,8 @@ while(1) {
     if($unset == true) {
         file_put_contents("games.json", json_encode($games));
     }
-    sleep(5);
+    unlink("lock");
+    sleep(1);
 }
 
 ?>
