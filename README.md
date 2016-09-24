@@ -8,6 +8,7 @@ The tracker consists of 2 parts:
 To use this tracker, you can set the port at the top of server.php (default is 9999), then run both server.php and auto-remove.php from the command line (using the "php" command).
 
 The tracker has 3 functions:
+
 1. Adding games to the tracker. The tracker waits to receive an info packet that is a string consisting of the game parameters. It expects them in the format "GameInfo1=info 1,GameInfo2=info 2", etc. It will then store the game in the file games.json. Whenever the tracker recieves another info packet from the same IP address & port, it will update the currently hosted game (this is how score is updated, etc.). Note: subsequent info packets only need to contain the updated info, and not the complete game info. (So sending "Score=5" will update the Score variable, while leaving everything else intact).
 
 2. Removing games fromt he tracker. If the tracker recieves a packet with the string "end", it will remove any game currently hosted by the IP address & port it received the packet from.
