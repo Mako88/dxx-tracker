@@ -2,13 +2,12 @@
 
 while(1) {
     echo "Checking games...\n";
-    while(file_exists("lock")) {
-        usleep(100000);
-    }
+    while(file_exists("lock")) { usleep(100000); }
     touch("lock");
     $games = json_decode(file_get_contents('games.json'), true);
     $unset = false;
-
+    
+    // Check the current games. If any haven't been updated in 10 seconds, remove them.
     foreach($games as $index => $game) {
         foreach($game as $key => $value) {
             if($key == "Time") {
