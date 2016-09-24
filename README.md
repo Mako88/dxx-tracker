@@ -2,6 +2,7 @@
 This is a simple tracker for DXX-Rebirth written in PHP.
 
 The tracker consists of 2 parts:
+
 1. server.php - The tracker itself
 2. auto-remove.php - A script to automatically remove games if they are inactive for a set amount of time (the client crashed).
 
