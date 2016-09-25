@@ -56,6 +56,8 @@ while(1) {
             break;
             
         default:
+            // Let the client know we recieved his game
+            stream_socket_sendto($socket, "OK", 0, $peer);
             // Add the game to the list
             $running = false;
             while(file_exists("lock")) { usleep(100000); }
