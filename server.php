@@ -64,6 +64,10 @@ while(1) {
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
             
+            // Sanitize packet
+            $pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+            $pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+            
             // Convert the received string into an array, adding the socket info and the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
             $current = array("Socket"=>$peer) + array_combine($p[1], $p[2]) + array("Time"=>time());
