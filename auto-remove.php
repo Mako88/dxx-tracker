@@ -6,7 +6,7 @@ while(1) {
     $games = json_decode(file_get_contents('games.json'), true);
     $unset = false;
     
-    // Check the current games. If any haven't been updated in 10 seconds, remove them.
+    // Check the current games. If any haven't been updated in 30 seconds, remove them.
     foreach($games as $index => $game) {
         foreach($game as $key => $value) {
             if($key == "Time") {
