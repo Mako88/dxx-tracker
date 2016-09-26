@@ -10,7 +10,7 @@ while(1) {
     foreach($games as $index => $game) {
         foreach($game as $key => $value) {
             if($key == "Time") {
-                if(time() - $value > 10) {
+                if(time() - $value > 30) {
                     echo "Removing game from " . $game["Socket"] . "\n";
                     unset($games[$index]);
                     $unset = true;
@@ -23,7 +23,7 @@ while(1) {
         file_put_contents("games.json", json_encode($games));
     }
     unlink("lock");
-    sleep(1);
+    sleep(10);
 }
 
 ?>
