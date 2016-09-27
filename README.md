@@ -16,7 +16,7 @@ The game information string is in the format `a=PORT,b=HEADER,c="Info 1",d="Info
 
 The opcodes are as follows:
 
-21. Register a game with the tracker. The format is `21a=PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. (The IP/Socket info (key `a`) doesn't need to be passed because the tracker detects it automatically). The game is stored in the file games.json. Whenever the tracker recieves another info packet from the same IP address & port, it will update the currently hosted game (this is how score is updated, etc.). Note: subsequent info packets only need to contain the updated info, and not the complete game info. (So sending `21f=5` will update the f variable, while leaving everything else intact).
+21. Register a game with the tracker. The format is `21a=PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. The game is stored in the file games.json. Whenever the tracker recieves another info packet from the same IP address & port, it will update the currently hosted game (this is how score is updated, etc.). Note: subsequent info packets only need to contain the updated info, and not the complete game info. (So sending `21f=5` will update the f variable, while leaving everything else intact).
 
 22. Remove a game from the tracker. The format is `22PORT` (You do not need to pass the `a=` because it is assumed).
 
