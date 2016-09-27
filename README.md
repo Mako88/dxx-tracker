@@ -1,22 +1,28 @@
 # DXX-Rebirth Tracker
 This is a simple tracker for DXX-Rebirth written in PHP.
 
-The tracker consists of 2 parts:
+The tracker consists of 4 parts:
 
 1. server.php - The tracker itself
 2. auto-remove.php - A script to automatically remove games if they are inactive for a set amount of time (the client crashed).
+3. port-test.php - A script that sends test packets to the client to make sure their port is open
+4. index.php - The web front-end.
 
-To use this tracker, you can set the port at the top of server.php (default is 9999), then run both server.php and auto-remove.php from the command line (using the "php" command).
+To use this tracker, you can set the port at the top of server.php (default is 9999), then run server.php from the command line (using the "php" command).
 
-The tracker has 3 functions:
+The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
-1. Adding games to the tracker. The tracker waits to receive an info packet that is a string consisting of the game parameters. It expects them in the format "GameInfo1=info 1,GameInfo2=info 2", etc. It will then store the game in the file games.json. Whenever the tracker recieves another info packet from the same IP address & port, it will update the currently hosted game (this is how score is updated, etc.). Note: subsequent info packets only need to contain the updated info, and not the complete game info. (So sending "Score=5" will update the Score variable, while leaving everything else intact).
+The game information string is in the format `b=HEADER,c="Info 1",d="Info 2"`, etc. The key `a` is reserved for the IP/Socket information and is in the format `a=127.0.0.1:9999`. The key 'b' is reserved for the header and is in the format `b=d1x-0.60.0.1`.
 
-2. Removing games from the tracker. If the tracker recieves a packet with the string "end", it will remove any game currently hosted by the IP address & port it received the packet from.
+The opcodes are as follows:
 
-3. Sending game information. If the tracker receives a packet with the string "call", it will send a list of all currently running games to the client. This will be formatted as a string, with options set with "=", options separated by ",", and games separated by "/". For example, the string
+21. Register a game with the tracker. The format is `21b=HEADER,c="Info 1",d="Info 2"`, etc. (The IP/Socket info (key `a`) doesn't need to be passed because the tracker detects it automatically). The game is stored in the file games.json. Whenever the tracker recieves another info packet from the same IP address & port, it will update the currently hosted game (this is how score is updated, etc.). Note: subsequent info packets only need to contain the updated info, and not the complete game info. (So sending `21f=5` will update the f variable, while leaving everything else intact).
+
+22. Remove a game from the tracker. The format is simply the opcode `22`.
+
+23. Retrieve a list of games. The format is`23HEADER` (You do not need to pass the `b=` because it is assumed). This will return a list of games formatted as a string, with options set with "=", options separated by ",", and games separated by "/". For example:
 ```
-"Socket=127.0.0.1:42424,Name=Bob's Game,Players=5/Socket=192.168.1.1:12345,Name=Test/Socket=55.55.55.55:500,Name=Test 2,Score=12"
+"a=127.0.0.1:42424,c=Bob's Game,d=5/a=192.168.1.1:12345,c=Test/a=55.55.55.55:500,c=Test 2,d=12"
 ```
 would show there are 3 games as follows:
 
@@ -24,21 +30,21 @@ would show there are 3 games as follows:
  ```
      IP: 127.0.0.1
      Port: 42424
-     Name: Bob's Game
-     Players: 5
+     c: Bob's Game
+     d: 5
  ```
  2.
  ```
      IP: 192.168.1.1
      Port: 12345
-     Name: Test
+     c: Test
  ```
  3.
  ```
      IP: 55.55.55.55
      Port: 500
-     Name: Test 2
-     Score: 12
+     c: Test 2
+     d: 12
  ```
-     
-Note: The "Socket" variable is automatically added by the tracker to the beginning of each game string. Any required variables must be decided by the client.
+ 
+ Once a game has been registered, 5 packets will be sent to it simply consisting of the opcode `24`. The client has to decide what action to take based on whether or not they are received.
