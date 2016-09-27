@@ -100,6 +100,7 @@ while(1) {
             stream_socket_sendto($socket, $result, 0, $peer);
             unlink("lock");
     }
+    echo "Recieved opcode " . $oparray['opcode'] . " from " . $peer . "\n";
 }
 
 ?>
