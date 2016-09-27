@@ -16,6 +16,7 @@ while(1) {
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
     $pkt = trim($pkt);
+    $iparray = explode(":", $peer);
     
     $oparray = unpack("Copcode/a*game", $pkt);
     $pkt = $oparray['game'];
@@ -35,11 +36,13 @@ while(1) {
             
             // Convert the received string into an array, adding the socket info and the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
-            $current = array("a"=>$peer) + array_combine($p[1], $p[2]) + array("Time"=>time());
+            $current = array_combine($p[1], $p[2]) + array("Time"=>time());
+            $host = $iparray[0] + ':' + $current['a'];
+            $current['a'] = $host;
             
             // If a game is already hosted by the peer, just change the information
             foreach($games as $index => $game) {
-                if($game['a'] == $peer) {
+                if($game['a'] == $host) {
                     $games[$index] = array_merge($game, $current);
                     $running = true;
                 }
@@ -49,7 +52,7 @@ while(1) {
             if($running == false) {
                 $games[] = $current;
                 // Start the port-test process
-                shell_exec('php ' . __DIR__ . '/port-test.php ' . $peer . '> /dev/null 2>/dev/null &');
+                shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . '> /dev/null 2>/dev/null &');
             }
             
             file_put_contents("games.json", json_encode($games));
@@ -62,8 +65,10 @@ while(1) {
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
+            
+            $host = $iparray[0] + ':' + $pkt;
             foreach($games as $index => $game) {
-                if($game['a'] == $peer) {
+                if($game['a'] == $host) {
                     unset($games[$index]);
                 }
             }
