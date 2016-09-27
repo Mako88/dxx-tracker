@@ -49,7 +49,7 @@ while(1) {
             if($running == false) {
                 $games[] = $current;
                 // Start the port-test process
-                shell_exec('php ' . __DIR__ . '/port-test.php' . $peer . '> /dev/null 2>/dev/null &');
+                shell_exec('php ' . __DIR__ . '/port-test.php' . "68.52.241.21:55056" . '> /dev/null 2>/dev/null &');
             }
             
             file_put_contents("games.json", json_encode($games));
