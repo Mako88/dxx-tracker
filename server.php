@@ -83,10 +83,10 @@ while(1) {
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
-            $result = "";
             
-            // Iterate through the games and add them to a string
+            // Iterate through the games and send them
             foreach($games as $index => $game) {
+                $result = "";
                 // Only send games with the same header
                 if($game['b'] == $pkt) {
                     foreach($game as $key => $value) {
@@ -96,13 +96,11 @@ while(1) {
                         }
                     }
                     $result = rtrim($result, ",");
-                    $result .= "/";
+                    // Send the string to the peer
+                    stream_socket_sendto($socket, $result, 0, $peer);
                 }
             }
-            $result = rtrim($result, "/");
             
-            // Send the string to the peer
-            stream_socket_sendto($socket, $result, 0, $peer);
             unlink("lock");
     }
     echo "Recieved opcode " . $oparray['opcode'] . " from " . $peer . "\n";

@@ -20,31 +20,6 @@ The opcodes are as follows:
 
 22. Remove a game from the tracker. The format is `22PORT` (You do not need to pass the `a=` because it is assumed).
 
-23. Retrieve a list of games. The format is`23HEADER` (You do not need to pass the `b=` because it is assumed). This will return a list of games formatted as a string, with options set with "=", options separated by ",", and games separated by "/". For example:
-```
-"a=127.0.0.1:42424,c=Bob's Game,d=5/a=192.168.1.1:12345,c=Test/a=55.55.55.55:500,c=Test 2,d=12"
-```
-would show there are 3 games as follows:
-
- 1.
- ```
-     IP: 127.0.0.1
-     Port: 42424
-     c: Bob's Game
-     d: 5
- ```
- 2.
- ```
-     IP: 192.168.1.1
-     Port: 12345
-     c: Test
- ```
- 3.
- ```
-     IP: 55.55.55.55
-     Port: 500
-     c: Test 2
-     d: 12
- ```
+23. Retrieve a list of games. The format is`23HEADER` (You do not need to pass the `b=` because it is assumed). This will send each game in its own packet formatted as a string (as shown above).
  
  Once a game has been registered, 5 packets will be sent to it simply consisting of the opcode `24`. The client has to decide what action to take based on whether or not they are received.
