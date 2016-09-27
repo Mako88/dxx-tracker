@@ -9,7 +9,7 @@ if (!$socket) {
 }
 
 // Start the auto-remove process
-echo('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
+shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 
 // Primary server loop
 while(1) {
