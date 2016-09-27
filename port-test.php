@@ -1,6 +1,7 @@
 <?php
-// TODO: Send 5 packets (1 a second) to the peer passed as a parameter
+// Send 5 packets (1 a second) to the peer passed as a parameter
 $socket = stream_socket_client("udp://" . $argv[1], $errno, $errstr, STREAM_CLIENT_ASYNC_CONNECT);
+
 if (!$socket) {
     die("$errstr ($errno)");
 }
