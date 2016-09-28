@@ -51,6 +51,7 @@ while(1) {
             // If a game isn't already hosted, list it.
             if($running == false) {
                 $games[] = $current;
+                echo $host;
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . '> /dev/null 2>/dev/null &');
             }
