@@ -40,6 +40,7 @@ while(1) {
             print_r($current);
             $host = $iparray[0] + ':' + $current['a'];
             $current['a'] = $host;
+            echo iparray[0];
             
             // If a game is already hosted by the peer, just change the information
             foreach($games as $index => $game) {
