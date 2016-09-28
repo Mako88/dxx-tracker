@@ -37,10 +37,12 @@ while(1) {
             // Convert the received string into an array, adding the socket info and the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
             $current = array_combine($p[1], $p[2]) + array("Time"=>time());
+            // TESTING
             print_r($current);
             $host = $iparray[0] + ':' + $current['a'];
             $current['a'] = $host;
-            echo iparray[0];
+            // TESTING
+            echo "IP: " . iparray[0] ."\n";
             
             // If a game is already hosted by the peer, just change the information
             foreach($games as $index => $game) {
@@ -53,6 +55,7 @@ while(1) {
             // If a game isn't already hosted, list it.
             if($running == false) {
                 $games[] = $current;
+                // TESTING
                 echo $host . "\n";
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . '> /dev/null 2>/dev/null &');
