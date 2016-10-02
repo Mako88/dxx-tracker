@@ -51,12 +51,14 @@ while(1) {
                     $running = true;
                 }
             }
+
+            echo "Running: " . $running . "\n";
             
             // If a game isn't already hosted, list it.
             if($running == false) {
                 $games[] = $current;
                 // TESTING
-                echo $host . "\n";
+                echo "Host: " . $host . "\n";
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . '> /dev/null 2>/dev/null &');
             }
