@@ -16,7 +16,7 @@ while(1) {
     $game = array();
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
-    $pkt = trim($pkt);
+    //$pkt = trim($pkt);
     $iparray = explode(":", $peer);
     
     $oparray = unpack("Copcode/a*game", $pkt);
@@ -26,8 +26,8 @@ while(1) {
     echo "Original Packet: $pkt\n";
     
     // Sanitize packet
-    $pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
-    $pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+    //$pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+    //$pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
     
     // TESTING
     echo "Sanitized Packet: $pkt\n";
