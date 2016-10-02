@@ -67,7 +67,7 @@ while(1) {
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
             
-            $host = $iparray[0] . ':'  $pkt;
+            $host = $iparray[0] . ':' . $pkt;
             foreach($games as $index => $game) {
                 if($game['a'] == $host) {
                     unset($games[$index]);
