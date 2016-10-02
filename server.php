@@ -85,6 +85,9 @@ while(1) {
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
             
+            //TESTING
+            echo "Header: " . $pkt . "\n";
+
             // Iterate through the games and send them
             foreach($games as $index => $game) {
                 $result = "";
