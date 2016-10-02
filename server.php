@@ -39,9 +39,6 @@ while(1) {
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
             $current = array_combine($p[1], $p[2]) + array("Time"=>time());
             $host = $iparray[0] . ':' . $current['a'];
-            // TESTING
-            echo "IP: " . $iparray[0] . "\n";
-            echo "Port: " . $current['a'] . "\n";
             $current['a'] = $host;
             
             // If a game is already hosted by the peer, just change the information
