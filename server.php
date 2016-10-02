@@ -43,8 +43,6 @@ while(1) {
             echo "IP: " . $iparray[0] . "\n";
             echo "Port: " . $current['a'] . "\n";
             $current['a'] = $host;
-
-            print_r($games);
             
             // If a game is already hosted by the peer, just change the information
             foreach($games as $index => $game) {
@@ -53,14 +51,10 @@ while(1) {
                     $running = true;
                 }
             }
-
-            echo "Running: " . $running . "\n";
             
             // If a game isn't already hosted, list it.
             if($running == false) {
                 $games[] = $current;
-                // TESTING
-                echo "Host: " . $host . "\n";
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . '> /dev/null 2>/dev/null &');
             }
