@@ -84,21 +84,23 @@ while(1) {
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
-            
-            //TESTING
-            echo "Header: " . $pkt . "\n";
 
             // Iterate through the games and send them
             foreach($games as $index => $game) {
                 $result = "";
                 // Only send games with the same header
                 if($game['b'] == $pkt) {
+                    // TESTING
+                    echo "Header OK\n";
                     foreach($game as $key => $value) {
                         // Don't send the time to the peer (they don't need it).
                         if($key != "Time" && $key != "b") {
                             $result .= "$key=$value,";
                         }
                     }
+                    // TESTING
+                    echo "Peer: " . $result . "\n";
+                    echo "Result: " . $result . "\n";
                     $result = rtrim($result, ",");
                     // Send the string to the peer
                     stream_socket_sendto($socket, $result, 0, $peer);
