@@ -17,6 +17,7 @@ while(1) {
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
     $pkt = trim($pkt);
+    echo "Original Peer: " . $peer . "\n";
     $iparray = explode(":", $peer);
     
     $oparray = unpack("Copcode/a*game", $pkt);
@@ -99,7 +100,7 @@ while(1) {
                         }
                     }
                     // TESTING
-                    echo "Peer: " . $result . "\n";
+                    echo "Peer: " . $peer . "\n";
                     echo "Result: " . $result . "\n";
                     $result = rtrim($result, ",");
                     // Send the string to the peer
