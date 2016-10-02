@@ -17,16 +17,21 @@ while(1) {
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
     $pkt = trim($pkt);
-    echo "Original Peer: " . $peer . "\n";
     $iparray = explode(":", $peer);
     
     $oparray = unpack("Copcode/a*game", $pkt);
     $pkt = $oparray['game'];
+
+    // TESTING
+    echo "Original Packet: $pkt\n";
     
     // Sanitize packet
     $pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
     $pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
     
+    // TESTING
+    echo "Sanitized Packet: $pkt\n";
+        
     switch($oparray['opcode']) {
         // Register a game
         case 21:
