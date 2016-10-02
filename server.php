@@ -38,7 +38,7 @@ while(1) {
             // Convert the received string into an array, adding the socket info and the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
             $current = array_combine($p[1], $p[2]) + array("Time"=>time());
-            $host = $iparray[0] + ':' + $current['a'];
+            $host = $iparray[0] . ':' . $current['a'];
             // TESTING
             echo "IP: " . $iparray[0] . "\n";
             echo "Port: " . $current['a'] . "\n";
