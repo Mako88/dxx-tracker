@@ -21,16 +21,10 @@ while(1) {
     
     $oparray = unpack("Copcode/a*game", $pkt);
     $pkt = $oparray['game'];
-
-    // TESTING
-    echo "Original Packet: $pkt\n";
     
     // Sanitize packet
     //$pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
     //$pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
-    
-    // TESTING
-    echo "Sanitized Packet: $pkt\n";
         
     switch($oparray['opcode']) {
         // Register a game
