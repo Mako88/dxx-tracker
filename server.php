@@ -75,6 +75,10 @@ while(1) {
             $games = json_decode(file_get_contents('games.json'), true);
             
             $host = $iparray[0] . ':' . $pkt;
+            // TESTING
+            $test = base64_encode($host);
+            echo "$test\n";
+            
             foreach($games as $index => $game) {
                 if($game['a'] == $host) {
                     unset($games[$index]);
