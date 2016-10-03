@@ -1,7 +1,7 @@
 <?php
 
-// Create the socket
-$socket = stream_socket_server("udp://127.0.0.1:9999", $errno, $errstr, STREAM_SERVER_BIND);
+// Create the socket (Change to 127.0.0.1 for local testing with client.php)
+$socket = stream_socket_server("udp://0.0.0.0:9999", $errno, $errstr, STREAM_SERVER_BIND);
 
 // Spit out an error if the socket couldn't be created
 if (!$socket) {
