@@ -76,7 +76,7 @@ while(1) {
             
             $host = $iparray[0] . ':' . $pkt;
             // TESTING
-            $test = base64_encode($host);
+            $test = strlen($host);
             echo "$test\n";
             
             foreach($games as $index => $game) {
