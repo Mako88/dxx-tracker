@@ -15,7 +15,6 @@ shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 
 // Primary server loop
 while(1) {
-    $games = array();
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
     //$pkt = trim($pkt);
@@ -42,6 +41,8 @@ while(1) {
             if($test === false) {
                 echo "We can't get it...\n";
             }
+            
+            print_r($test);
             
             $games = json_decode($test, true);
             
