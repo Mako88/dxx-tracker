@@ -10,6 +10,8 @@ if (!$socket) {
 
 // Start the auto-remove process
 shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
+// Windows
+//pclose(popen('start /B cmd /C php ' . __DIR__ . '/auto-remove.php >NUL 2>NUL', 'r'));
 
 // Primary server loop
 while(1) {
@@ -53,7 +55,9 @@ while(1) {
             if($running == false) {
                 $games[] = $current;
                 // Start the port-test process
-                shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . '> /dev/null 2>/dev/null &');
+                shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . ' > /dev/null 2>/dev/null &');
+                // Windows
+                //pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . $host . ' >NUL 2>NUL', 'r'));
             }
             
             file_put_contents("games.json", json_encode($games));
