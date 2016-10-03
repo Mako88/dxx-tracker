@@ -43,19 +43,19 @@ while(1) {
             $host = $iparray[0] . ':' . $current['a'];
             $current['a'] = $host;
             
-            // TESTING
-            print_r($games);
-            
             // If a game is already hosted by the peer, just change the information
             foreach($games as $index => $game) {
                 if($game['a'] == $host) {
+                    $game['c'] = base64_decode($game['c']);
                     $games[$index] = array_merge($game, $current);
+                    $game['c'] = base64_encode($game['c']);
                     $running = true;
                 }
             }
             
             // If a game isn't already hosted, list it.
             if($running == false) {
+                $current['c'] = base64_encode($current['c']);
                 $games[] = $current;
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . ' > /dev/null 2>/dev/null &');
@@ -63,19 +63,9 @@ while(1) {
                 //pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . $host . ' >NUL 2>NUL', 'r'));
             }
             
-            // TESTING
-            $jsongames = json_encode($games);
             
-            if($jsongames) {
-                file_put_contents("games.json", $jsongames);
-            }
-            else {
-                print_r($games);
-            }
-            
+            file_put_contents("games.json", json_encode($games));
             unlink("lock");
-            // TESTING
-            sleep(50);
             break;
         
         // Unregister a game
@@ -114,9 +104,11 @@ while(1) {
                 if($game['b'] == $pkt) {
                     foreach($game as $key => $value) {
                         // Don't send the time to the peer (they don't need it).
+                        $game['c'] = base64_decode($game['c']);
                         if($key != "Time" && $key != "b") {
                             $result .= "$key=$value,";
                         }
+                        $game['c'] = base64_encode($game['c']);
                     }
                     $result = rtrim($result, ",");
                     // Send the string to the peer
