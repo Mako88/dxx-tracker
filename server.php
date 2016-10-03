@@ -1,6 +1,6 @@
 <?php
 
-// Create the socket (Change to 127.0.0.1 for local testing with client.php)
+// Create the socket
 $socket = stream_socket_server("udp://0.0.0.0:9999", $errno, $errstr, STREAM_SERVER_BIND);
 
 // Spit out an error if the socket couldn't be created
@@ -17,15 +17,11 @@ shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 while(1) {
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
-    //$pkt = trim($pkt);
     $iparray = explode(":", $peer);
     
+    // Split opcode from packet
     $oparray = unpack("Copcode/a*game", $pkt);
     $pkt = $oparray['game'];
-    
-    // Sanitize packet
-    //$pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
-    //$pkt = filter_var($pkt, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
         
     switch($oparray['opcode']) {
         // Register a game
@@ -73,11 +69,7 @@ while(1) {
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
-            
             $host = $iparray[0] . ':' . $pkt;
-            // TESTING
-            $test = strlen($host);
-            echo "$test\n";
             
             foreach($games as $index => $game) {
                 if($game['a'] == $host) {
