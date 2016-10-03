@@ -35,7 +35,7 @@ while(1) {
             $running = false;
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
-            while(!$games) { $games = json_decode(file_get_contents('games.json'), true); }
+            $games = json_decode(file_get_contents('games.json'), true);
             
             // Convert the received string into an array, adding the socket info and the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
@@ -53,9 +53,6 @@ while(1) {
                     $running = true;
                 }
             }
-            
-            // TESTING
-            print_r($games);
             
             // If a game isn't already hosted, list it.
             if($running == false) {
