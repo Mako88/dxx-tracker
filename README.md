@@ -7,7 +7,8 @@ The tracker consists of 4 parts:
 2. auto-remove.php - A script to automatically remove games if they are inactive for a set amount of time (the client crashed).
 3. port-test.php - A script that sends test packets to the client to make sure their port is open
 4. index.php - The web front-end.
-(`client.php` is included as a test client when a Rebirth client is not available).
+
+client.php is included as a test client when a Rebirth client is not available.
 
 To use this tracker, you can set the port at the top of server.php (default is 9999), then run server.php from the command line (using the "php" command).
 
