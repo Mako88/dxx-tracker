@@ -12,7 +12,7 @@ To use this tracker, you can set the port at the top of server.php (default is 9
 
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
-The game information string is in the format `a=PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. The key `a` is reserved for the IP/Port information. The tracker expects to receive just the port (`a=42424`), but will send both the port and IP (`a=127.0.0.1:42424`). The key 'b' is reserved for the header and is in the format `b=d1x-0.60.0.1`.
+The game information string is in the format `<OPCODE>a=IP:PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. The key `a` is reserved for the IP/Port information. The tracker expects to receive just the port (`a=42424`), but will send both the port and IP (`a=127.0.0.1:42424`). The key 'b' is reserved for the header and is in the format `b=d1x-0.60.0.1`.
 
 The opcodes are as follows:
 
@@ -20,6 +20,9 @@ The opcodes are as follows:
 
   `22`: Remove a game from the tracker. The format is `22PORT` (You do not need to pass the `a=` because it is assumed).
 
-  `23`: Retrieve a list of games. The format is`23HEADER` (You do not need to pass the `b=` because it is assumed). This will send each game in its own packet formatted as a string (as shown above).
- 
- Once a game has been registered, 5 packets will be sent to it simply consisting of the opcode `24`. The client has to decide what action to take based on whether or not they are received.
+  `23`: Retrieve a list of games. The format is`23HEADER` (You do not need to pass the `b=` because it is assumed). This will send each game in its own packet formatted as a string (as shown below).
+  
+  `24`: ACK packet. Once a game has been registered, 5 packets will be sent to it simply consisting of the opcode `24`. The client has to decide what action to take based on whether or not they are received.
+  
+  `25`: This is the opcode for the list of games sent back to the client. The format is `25a=IP:PORT,c="Info 1",d="Info2"`, etc. (The `b=HEADER` is not passed, since only games which match the header received will be sent, and the header would always be the same.)
+
