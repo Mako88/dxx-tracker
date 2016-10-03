@@ -35,7 +35,25 @@ while(1) {
             $running = false;
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
-            $games = json_decode(file_get_contents('games.json'), true);
+            
+            //TESTING
+            $test = file_get_contents('games.json');
+            
+            if($test === false) {
+                echo "We can't get it...\n";
+            }
+            
+            $games = json_decode($test, true);
+            
+            if($games == null) {
+                echo "It's null...\n";
+            }
+            
+            if($games == false) {
+                echo "It's false...\n";
+            }
+            
+            //$games = json_decode(file_get_contents('games.json'), true);
             
             // Convert the received string into an array, adding the socket info and the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
@@ -90,9 +108,6 @@ while(1) {
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
-            
-            // TESTING
-            print_r($games);
 
             // Iterate through the games and send them
             foreach($games as $index => $game) {
