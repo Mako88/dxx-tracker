@@ -1,7 +1,7 @@
 <?php
 
 // Create the socket (Change to 127.0.0.1 for local testing with client.php)
-$socket = stream_socket_server("udp://127.0.0.1:9998", $errno, $errstr, STREAM_SERVER_BIND);
+$socket = stream_socket_server("udp://0.0.0.0:9999", $errno, $errstr, STREAM_SERVER_BIND);
 
 // Spit out an error if the socket couldn't be created
 if (!$socket) {
@@ -9,9 +9,9 @@ if (!$socket) {
 }
 
 // Start the auto-remove process
-//shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
+shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 // Windows
-pclose(popen('start /B cmd /C php ' . __DIR__ . '/auto-remove.php >NUL 2>NUL', 'r'));
+//pclose(popen('start /B cmd /C php ' . __DIR__ . '/auto-remove.php >NUL 2>NUL', 'r'));
 
 // Primary server loop
 while(1) {
@@ -58,9 +58,9 @@ while(1) {
             if($running == false) {
                 $games[] = $current;
                 // Start the port-test process
-                //shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . ' > /dev/null 2>/dev/null &');
+                shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . ' > /dev/null 2>/dev/null &');
                 // Windows
-                pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . $host . ' >NUL 2>NUL', 'r'));
+                //pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . $host . ' >NUL 2>NUL', 'r'));
             }
             
             file_put_contents("games.json", json_encode($games));

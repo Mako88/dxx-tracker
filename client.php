@@ -1,6 +1,6 @@
 <?php
 // Test Client
-$socket = stream_socket_client("udp://127.0.0.1:9998", $errno, $errstr, STREAM_CLIENT_ASYNC_CONNECT);
+$socket = stream_socket_client("udp://127.0.0.1:9999", $errno, $errstr, STREAM_CLIENT_ASYNC_CONNECT);
 
 if (!$socket) {
     die("$errstr ($errno)");
