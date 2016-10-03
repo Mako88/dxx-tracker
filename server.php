@@ -54,6 +54,9 @@ while(1) {
                 }
             }
             
+            // TESTING
+            print_r($games);
+            
             // If a game isn't already hosted, list it.
             if($running == false) {
                 $games[] = $current;
