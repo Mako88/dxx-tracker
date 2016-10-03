@@ -35,26 +35,7 @@ while(1) {
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
             
-            //TESTING
-            $test = file_get_contents('games.json');
-            
-            if($test === false) {
-                echo "We can't get it...\n";
-            }
-            
-            print_r($test);
-            
-            $games = json_decode($test, true);
-            
-            if($games == null) {
-                echo "It's null...\n";
-            }
-            
-            if($games == false) {
-                echo "It's false...\n";
-            }
-            
-            //$games = json_decode(file_get_contents('games.json'), true);
+            $games = json_decode(file_get_contents('games.json'), true);
             
             // Convert the received string into an array, adding the socket info and the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
@@ -65,20 +46,22 @@ while(1) {
             // If a game is already hosted by the peer, just change the information
             foreach($games as $index => $game) {
                 if($game['a'] == $host) {
+                    $game['c'] = base64_decode($game['c']);
                     $games[$index] = array_merge($game, $current);
+                    $games[$index]['c'] = base64_encode($games[$index]['c']);
                     $running = true;
                 }
             }
             
             // If a game isn't already hosted, list it.
             if($running == false) {
+                $current['c'] = base64_encode($current['c']);
                 $games[] = $current;
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . ' > /dev/null 2>/dev/null &');
                 // Windows
                 //pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . $host . ' >NUL 2>NUL', 'r'));
             }
-            
             
             file_put_contents("games.json", json_encode($games));
             unlink("lock");
@@ -115,6 +98,7 @@ while(1) {
                 $result = $opcode;
                 // Only send games with the same header
                 if($game['b'] == $pkt) {
+                    $game['c'] = base64_decode($game['c']);
                     foreach($game as $key => $value) {
                         // Don't send the time to the peer (they don't need it).
                         if($key != "Time" && $key != "b") {
