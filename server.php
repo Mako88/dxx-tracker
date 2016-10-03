@@ -15,7 +15,7 @@ shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 
 // Primary server loop
 while(1) {
-    $games = array();
+    $games = null;
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
     //$pkt = trim($pkt);
@@ -35,7 +35,7 @@ while(1) {
             $running = false;
             while(file_exists("lock")) { usleep(100000); }
             touch("lock");
-            $games = json_decode(file_get_contents('games.json'), true);
+            while(!$games) { $games = json_decode(file_get_contents('games.json'), true); }
             
             // Convert the received string into an array, adding the socket info and the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
