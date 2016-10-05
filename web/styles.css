@@ -1,3 +1,25 @@
+@font-face {
+    font-family: Logo;
+    src: url('fonts/logo.woff2') format('woff2'),
+         url('fonts/logo.woff') format('woff');
+    font-weight: 700;
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: Score;
+    src: url('fonts/score.woff2') format('woff2'),
+         url('fonts/score.woff2') format('woff');
+    font-weight: 400;
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: Score, sans-serif;
+}
+
 #wrapper {
     width: 90%;
     margin: auto;
@@ -5,6 +27,7 @@
 
 h1 {
     text-align: center;
+    font-family: Logo, sans-serif;
 }
 
 table {
