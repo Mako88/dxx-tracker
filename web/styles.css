@@ -1,0 +1,72 @@
+#wrapper {
+    width: 90%;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    white-space: nowrap;
+    margin-bottom: 25px;
+}
+
+.version {
+    width: 15%;
+}
+
+.name {
+    width: 25%;
+}
+
+.mission {
+    width: 20%;
+}
+
+.players {
+    width: 10%;
+}
+
+.mode {
+    width: 10%;
+}
+
+.status {
+    width: 10%;
+}
+
+.host {
+    width: 10%;
+}
+
+table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table th {
+    background: darkblue;
+    color: white;
+}
+
+table td,
+table th {
+    text-align: left;
+    padding: 5px 10px;
+}
+
+table tr:nth-child(even) {
+    background: lightblue;
+}
+
+.up {
+    color: green;
+}
+
+.down {
+    color: red;
+}
