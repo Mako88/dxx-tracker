@@ -1,6 +1,3 @@
-<?php
-    // TODO: Styling
-?>
 <!doctype html>
 
 <html lang="en">

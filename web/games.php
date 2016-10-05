@@ -4,6 +4,7 @@ while(file_exists("../lock")) { usleep(100000); }
 touch("../lock");
 $filegames = json_decode(file_get_contents('../games.json'), true);
 unlink("../lock");
+$games = array();
 
 if($filegames == false) {
     $filegames = array();
@@ -13,6 +14,7 @@ foreach($filegames as $index => $game) {
     $games[$index] = unpack("Cupid/Smajor/Sminor/Smicro/Iid/Ilevelnum/Cgamemode/Crefuse/Cdifficulty/Cstatus/Cnumconnected/Cmaxplayers/Cflag/a*strings", base64_decode($game['c']));
 
     $games[$index]['host'] = $game['a'];
+    preg_match("/D[1-2]X/", $game['b'], $games[$index]['version']);
 
     $strings = explode("\x00", $games[$index]['strings']);
 
@@ -96,7 +98,7 @@ foreach($filegames as $index => $game) {
 
     echo "
     <tr>
-        <td>" . $games[$index]['major'] . "." . $games[$index]['minor'] . "." . $games[$index]['micro'] . "</td>
+        <td>" . $games[$index]['version'][0] . " " . $games[$index]['major'] . "." . $games[$index]['minor'] . "." . $games[$index]['micro'] . "</td>
         <td>" . $games[$index]['gamename'] . "</td>
         <td>" . ($games[$index]['missionname'] != "" ? $games[$index]['missionname'] : $games[$index]['missiontitle']) . "</td>
         <td>" . $games[$index]['numconnected'] . "/" . $games[$index]['maxplayers'] . "</td>
