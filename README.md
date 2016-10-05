@@ -6,7 +6,7 @@ The tracker consists of 4 parts:
 1. server.php - The tracker itself
 2. auto-remove.php - A script to automatically remove games if they are inactive for a set amount of time (the client crashed).
 3. port-test.php - A script that sends test packets to the client to make sure their port is open
-4. index.php - The web front-end.
+4. web/index.php - The web front-end.
 
 client.php is included as a test client when a Rebirth client is not available.
 
