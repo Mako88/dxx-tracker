@@ -19,8 +19,12 @@ foreach($filegames as $index => $game) {
     $strings = explode("\x00", $games[$index]['strings']);
 
     $games[$index]['gamename'] = $strings[0];
-    $games[$index]['missiontitle'] = $strings[1];
-    $games[$index]['missionname'] = $strings[2];
+    if(isset($strings[1])) {
+        $games[$index]['mission'] = $strings[1];
+    }
+    else if(isset($strings[2])) {
+        $games[$index]['mission'] = $strings[2];
+    }
 
     switch($games[$index]['gamemode']) {
         case 0:
@@ -100,7 +104,7 @@ foreach($filegames as $index => $game) {
     <tr>
         <td>" . $games[$index]['version'][0] . " " . $games[$index]['major'] . "." . $games[$index]['minor'] . "." . $games[$index]['micro'] . "</td>
         <td>" . $games[$index]['gamename'] . "</td>
-        <td>" . ($games[$index]['missionname'] != "" ? $games[$index]['missionname'] : $games[$index]['missiontitle']) . "</td>
+        <td>" . $games[$index]['mission'] . "</td>
         <td>" . $games[$index]['numconnected'] . "/" . $games[$index]['maxplayers'] . "</td>
         <td>" . $games[$index]['gamemode'] . "</td>
         <td>" . $games[$index]['status'] . "</td>

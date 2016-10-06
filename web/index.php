@@ -17,11 +17,11 @@
         <table>
             <thead>
                 <tr>
-                    <th class="version">Game Version</th>
-                    <th class="name">Game Name</th>
+                    <th class="version">Version</th>
+                    <th class="name">Name</th>
                     <th class="mission">Mission</th>
                     <th class="players">Players</th>
-                    <th class="mode">Game Mode</th>
+                    <th class="mode">Mode</th>
                     <th class="status">Status</th>
                     <th class="host">Host</th>
                 </tr>
@@ -31,7 +31,7 @@
             </tbody>
         </table>
         
-        <span>Tracker Backend is: </span><span id="backend"></span>
+        <span>Tracker Backend Status: </span><span id="backend"></span>
     </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>

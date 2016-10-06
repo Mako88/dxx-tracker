@@ -16,8 +16,14 @@
     font-style: normal;
 }
 
+html {
+    background: url("background.jpg") no-repeat fixed center center;
+    background-size: cover;
+}
+
 body {
     font-family: Score, sans-serif;
+    color: #bcbcbc;
 }
 
 #wrapper {
@@ -28,6 +34,8 @@ body {
 h1 {
     text-align: center;
     font-family: Logo, sans-serif;
+    color: #ff0000;
+    font-size: 50px;
 }
 
 table {
@@ -35,14 +43,15 @@ table {
     width: 100%;
     white-space: nowrap;
     margin-bottom: 25px;
+    border-collapse: collapse;
 }
 
 .version {
-    width: 15%;
+    width: 12%;
 }
 
 .name {
-    width: 25%;
+    width: 13%;
 }
 
 .mission {
@@ -50,11 +59,11 @@ table {
 }
 
 .players {
-    width: 10%;
+    width: 12%;
 }
 
 .mode {
-    width: 10%;
+    width: 13%;
 }
 
 .status {
@@ -62,29 +71,37 @@ table {
 }
 
 .host {
-    width: 10%;
+    width: 15%;
+}
+
+
+table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.59);
+    cursor: pointer;
+}
+
+table td,
+table th {
+    text-align: left;
+}
+
+table th {
+    font-size: 18px;
+    font-family: Logo, sans-serif;
+    color: #ffba00;
+    padding: 10px 10px;
 }
 
 table td {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-table th {
-    background: darkblue;
-    color: white;
-}
-
-table td,
-table th {
-    text-align: left;
     padding: 5px 10px;
 }
 
-table tr:nth-child(even) {
+/*table tr:nth-child(odd) {
     background: lightblue;
-}
+}*/
 
 .up {
     color: green;
