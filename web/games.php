@@ -99,17 +99,19 @@ foreach($filegames as $index => $game) {
     else {
         $games[$index]['status'] = "Between";
     }
-
-    echo "
-    <tr>
-        <td>" . $games[$index]['version'][0] . " " . $games[$index]['major'] . "." . $games[$index]['minor'] . "." . $games[$index]['micro'] . "</td>
-        <td>" . $games[$index]['gamename'] . "</td>
-        <td>" . $games[$index]['mission'] . "</td>
-        <td>" . $games[$index]['numconnected'] . "/" . $games[$index]['maxplayers'] . "</td>
-        <td>" . $games[$index]['gamemode'] . "</td>
-        <td>" . $games[$index]['status'] . "</td>
-        <td>" . $games[$index]['host'] . "</td>
-    </tr>
-    ";
+    
+    if( (isset($_GET['d1x']) && $games[$index]['version'][0] == "D1X") || (isset($_GET['d2x']) && $games[$index]['version'][0] == "D2X") ) {
+        echo "
+        <tr>
+            <td>" . $games[$index]['version'][0] . " " . $games[$index]['major'] . "." . $games[$index]['minor'] . "." . $games[$index]['micro'] . "</td>
+            <td>" . $games[$index]['gamename'] . "</td>
+            <td>" . $games[$index]['mission'] . "</td>
+            <td>" . $games[$index]['numconnected'] . "/" . $games[$index]['maxplayers'] . "</td>
+            <td>" . $games[$index]['gamemode'] . "</td>
+            <td>" . $games[$index]['status'] . "</td>
+            <td>" . $games[$index]['host'] . "</td>
+        </tr>
+        ";
+    }
 }
 ?>

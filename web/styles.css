@@ -76,8 +76,8 @@ table {
 
 
 table tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.59);
     cursor: pointer;
+    color: #8787ff;
 }
 
 table td,
@@ -109,4 +109,17 @@ table td {
 
 .down {
     color: red;
+}
+
+.buttons {
+    text-align: center;
+}
+
+a, a:link, a:visited {
+    color: #bcbcbc;
+    text-decoration: none;
+}
+
+a:hover, a:active {
+    color: #8787ff;
 }

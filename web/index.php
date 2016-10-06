@@ -13,6 +13,7 @@
 <body>
     <div id="wrapper">
         <h1>DXX-Rebirth Tracker</h1>
+        <p class="buttons">Show: <a href="#" id="all">All</a> <a href="#" id="d1x">D1X</a> <a href="#" id="d2x">D2X</a></p>
 
         <table>
             <thead>
@@ -37,20 +38,32 @@
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 <script type="text/javascript">
     $(document).ready(function(){
-        refreshTable();
-        checkBackend();
+        var check = "games.php?d1x=yes&d2x=yes";
+        $('#games').load(check);
+        window.interval = setInterval(function() { $('#games').load(check); }, 5000);
+        $('#backend').load('backend.php');
+        backendInterval = setInterval(function() { $('#backend').load('backend.php'); }, 5000);
+        
+        $("#all").click(function(){
+            check = "games.php?d1x=yes&d2x=yes";
+            refreshTable(check);
+        });
+        
+        $("#d1x").click(function(){
+            check = "games.php?d1x=yes";
+            refreshTable(check);
+        });
+        
+        $("#d2x").click(function(){
+            check = "games.php?d2x=yes";
+            refreshTable(check);
+        });
     });
 
-    function refreshTable(){
-        $('#games').load('games.php', function(){
-           setTimeout(refreshTable, 5000);
-        });
-    }
-    
-    function checkBackend(){
-        $('#backend').load('backend.php', function(){
-           setTimeout(checkBackend, 1000);
-        });
+    function refreshTable(check){
+        clearInterval(interval);
+        $('#games').load(check);
+        interval = setInterval(function() { $('#games').load(check); }, 5000);
     }
 </script>
 
