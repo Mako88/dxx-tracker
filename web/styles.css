@@ -27,7 +27,7 @@ body {
 }
 
 #wrapper {
-    width: 90%;
+    width: 95%;
     margin: auto;
 }
 
@@ -51,7 +51,7 @@ table {
 }
 
 .name {
-    width: 13%;
+    width: 15%;
 }
 
 .mission {
@@ -59,19 +59,19 @@ table {
 }
 
 .players {
-    width: 12%;
-}
-
-.mode {
     width: 13%;
 }
 
+.mode {
+    width: 12%;
+}
+
 .status {
-    width: 15%;
+    width: 13%;
 }
 
 .host {
-    width: 15%;
+    width: 17%;
 }
 
 
