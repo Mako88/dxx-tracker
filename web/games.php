@@ -6,6 +6,7 @@ touch("../lock");
 $filegames = json_decode(file_get_contents('../games.json'), true);
 unlink("../lock");
 $games = array();
+$strings = array();
 
 // If there aren't any games, make sure the foreach below doesn't fail.
 if($filegames == false) {
@@ -24,14 +25,14 @@ foreach($filegames as $index => $game) {
     $strings = explode("\x00", $games[$index]['strings']);
     
     // Game, Title, and Name were all set and under max. Use Title.
-    if(isset($strings[2])) {
+    if(!empty($strings[2])) {
         $games[$index]['gamename'] = $strings[0];
         $games[$index]['mission'] = $strings[1];
     }
     // Either one wasn't set, or one is over max length
-    else if(isset($strings[1])) {
+    else if(!empty($strings[1])) {
         // If Game is over max length, all 3 were set. Get Game and Title.
-        if(strlen($strings[0]) > 15) {
+        if(strlen($strings[0]) >= 15) {
             $games[$index]['gamename'] = substr($strings[0], 0, 15);
             $games[$index]['mission'] = substr($strings[0], 15);
         }
@@ -39,8 +40,8 @@ foreach($filegames as $index => $game) {
             // Get Game since it's under max length
             $games[$index]['gamename'] = $strings[0];
             // If Title is over max length, just get Title
-            if(strlen($strings[1]) > 25) {
-                $games[$index]['mission'] = substr($strings[1], 25);
+            if(strlen($strings[1]) >= 25) {
+                $games[$index]['mission'] = substr($strings[1], 0, 25);
             }
             // Otherwise get whatever's there (could be Title or Name)
             else {
@@ -48,7 +49,7 @@ foreach($filegames as $index => $game) {
             }
         }
     }
-    // Both Game and Title are over max. Get them both.
+    // Both Game and Title are over max. Get both.
     else {
         $games[$index]['gamename'] = substr($strings[0], 0, 15);
         $games[$index]['mission'] = substr($strings[0], 15, 25);
