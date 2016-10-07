@@ -109,11 +109,11 @@ table td {
 }*/
 
 .up {
-    color: green;
+    color: #ffba00;
 }
 
 .down {
-    color: red;
+    color: #ff0000;
 }
 
 .buttons {

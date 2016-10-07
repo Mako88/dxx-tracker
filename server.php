@@ -24,6 +24,7 @@ while(1) {
     $pkt = $oparray['game'];
         
     switch($oparray['opcode']) {
+            
         // Register a game
         case 21:
             
@@ -33,11 +34,22 @@ while(1) {
             
             $games = json_decode(file_get_contents('games.json'), true);
             
-            // Convert the received string into an array, adding the socket info and the update time.
+            // Convert the received string into an array, adding the update time.
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
             $current = array_combine($p[1], $p[2]) + array("Time"=>time());
+            
+            // $iparray[0] is the IP address, however $iparray[1] is the port used
+            // to contact the tracker, NOT the port the game is hosted on. $host must
+            // be set using the port sent in 'a'.
             $host = $iparray[0] . ':' . $current['a'];
             $current['a'] = $host;
+            
+            /*
+            NOTE: The 'c' key (the primary game info) is always stored encoded in base64
+            because json doesn't officially support binary strings, and storing them unencoded
+            can lead to unexpected results. So every time 'c' is loaded, it must be decoded
+            before sending it to a client or changing its info with new data.
+            */
             
             // If a game is already hosted by the peer, just change the information
             foreach($games as $index => $game) {
@@ -53,6 +65,7 @@ while(1) {
             if($running == false) {
                 $current['c'] = base64_encode($current['c']);
                 $games[] = $current;
+                
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . ' > /dev/null 2>/dev/null &');
                 // Windows
@@ -71,6 +84,8 @@ while(1) {
             $games = json_decode(file_get_contents('games.json'), true);
             $host = $iparray[0] . ':' . $pkt;
             
+            // Only unregister a game with the same port. This would allow the same IP address
+            // to host multiple games, though the client doesn't currently support this.
             foreach($games as $index => $game) {
                 if($game['a'] == $host) {
                     unset($games[$index]);
@@ -89,7 +104,6 @@ while(1) {
             touch("lock");
             $games = json_decode(file_get_contents('games.json'), true);
 
-            // Iterate through the games and send them
             foreach($games as $index => $game) {
                 $result = $opcode;
                 // Only send games with the same header
@@ -102,7 +116,7 @@ while(1) {
                         }
                     }
                     $result = rtrim($result, ",");
-                    // Send the string to the peer
+
                     stream_socket_sendto($socket, $result, 0, $peer);
                 }
             }

@@ -1,4 +1,5 @@
 <?php
+// Get a list of games and display them
 
 while(file_exists("../lock")) { usleep(100000); }
 touch("../lock");
@@ -6,18 +7,21 @@ $filegames = json_decode(file_get_contents('../games.json'), true);
 unlink("../lock");
 $games = array();
 
+// If there aren't any games, make sure the foreach below doesn't fail.
 if($filegames == false) {
     $filegames = array();
 }
 
 foreach($filegames as $index => $game) {
+    // Unpack based on the order the client sends the info
     $games[$index] = unpack("Cupid/Smajor/Sminor/Smicro/Iid/Ilevelnum/Cgamemode/Crefuse/Cdifficulty/Cstatus/Cnumconnected/Cmaxplayers/Cflag/a*strings", base64_decode($game['c']));
-
+    
+    // Get the host and the game version (D1X or D2X)
     $games[$index]['host'] = $game['a'];
     preg_match("/D[1-2]X/", $game['b'], $games[$index]['version']);
-
+    
+    // Split the strings and set them to keys (favor Mission Title over Mission Name)
     $strings = explode("\x00", $games[$index]['strings']);
-
     $games[$index]['gamename'] = $strings[0];
     if(isset($strings[1])) {
         $games[$index]['mission'] = $strings[1];
@@ -25,7 +29,8 @@ foreach($filegames as $index => $game) {
     else if(isset($strings[2])) {
         $games[$index]['mission'] = $strings[2];
     }
-
+    
+    // Set the game mode to text
     switch($games[$index]['gamemode']) {
         case 0:
             $games[$index]['gamemode'] = "Anarchy";
@@ -59,7 +64,8 @@ foreach($filegames as $index => $game) {
             $games[$index]['gamemode'] = "Bounty";
         break; 
     }
-
+    
+    // Set the difficulty (this isn't currently used)
     switch($games[$index]['difficulty']) {
         case 0:
             $games[$index]['difficulty'] = "Trainee";
@@ -81,7 +87,8 @@ foreach($filegames as $index => $game) {
             $games[$index]['difficulty'] = "Insane";
         break;
     }
-
+    
+    // Set the status. This uses the same logic as Rebirth does internally.
     if($games[$index]['status'] == 4) {
         $games[$index]['status'] = "Forming";
     }
@@ -100,6 +107,7 @@ foreach($filegames as $index => $game) {
         $games[$index]['status'] = "Between";
     }
     
+    // Conditionally echo the game depending on if the current game is the same version we want.
     if( (isset($_GET['d1x']) && $games[$index]['version'][0] == "D1X") || (isset($_GET['d2x']) && $games[$index]['version'][0] == "D2X") ) {
         echo "
         <tr>
