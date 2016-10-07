@@ -22,13 +22,38 @@ foreach($filegames as $index => $game) {
     
     // Split the strings and set them to keys (favor Mission Title over Mission Name)
     $strings = explode("\x00", $games[$index]['strings']);
-    $games[$index]['gamename'] = $strings[0];
-    if(isset($strings[1])) {
+    
+    // Game, Title, and Name were all set and under max. Use Title.
+    if(isset($strings[2])) {
+        $games[$index]['gamename'] = $strings[0];
         $games[$index]['mission'] = $strings[1];
     }
-    else if(isset($strings[2])) {
-        $games[$index]['mission'] = $strings[2];
+    // Either one wasn't set, or one is over max length
+    else if(isset($strings[1])) {
+        // If Game is over max length, all 3 were set. Get Game and Title.
+        if(strlen($strings[0]) > 15) {
+            $games[$index]['gamename'] = substr($strings[0], 0, 15);
+            $games[$index]['mission'] = substr($strings[0], 15);
+        }
+        else {
+            // Get Game since it's under max length
+            $games[$index]['gamename'] = $strings[0];
+            // If Title is over max length, just get Title
+            if(strlen($strings[1]) > 25) {
+                $games[$index]['mission'] = substr($strings[1], 25);
+            }
+            // Otherwise get whatever's there (could be Title or Name)
+            else {
+                $games[$index]['mission'] = $strings[1];
+            }
+        }
     }
+    // Both Game and Title are over max. Get them both.
+    else {
+        $games[$index]['gamename'] = substr($strings[0], 0, 15);
+        $games[$index]['mission'] = substr($strings[0], 15, 25);
+    }
+    
     
     // Set the game mode to text
     switch($games[$index]['gamemode']) {
