@@ -24,11 +24,16 @@ html {
 body {
     font-family: Score, sans-serif;
     color: #bcbcbc;
+    margin: 0;
+    padding: 0;
 }
 
 #wrapper {
     width: 95%;
     margin: auto;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
 }
 
 h1 {
@@ -122,4 +127,10 @@ a, a:link, a:visited {
 
 a:hover, a:active {
     color: #8787ff;
+}
+
+#footer {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
 }

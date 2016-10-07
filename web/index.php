@@ -32,7 +32,9 @@
             </tbody>
         </table>
         
-        <span>Tracker Backend Status: </span><span id="backend"></span>
+        <div id="footer">
+            <span>Tracker Backend Status: </span><span id="backend"></span>
+        </div>
     </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
