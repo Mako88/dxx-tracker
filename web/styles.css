@@ -82,7 +82,7 @@ table {
 
 table tbody tr:hover {
     cursor: pointer;
-    color: #7b8be3;
+    color: #767cc9;
 }
 
 table td,
@@ -126,7 +126,7 @@ a, a:link, a:visited {
 }
 
 a:hover, a:active {
-    color: #7b8be3;
+    color: #767cc9;
 }
 
 #footer {
