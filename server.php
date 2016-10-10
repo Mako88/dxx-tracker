@@ -59,7 +59,7 @@ while(1) {
             $result = $query->execute();
             
             // If a game is already hosted, just change the information
-            if($game = $result->fetchArray()) {
+            if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $game = array_merge($game, $current);
                 
                 $query = $games->prepare("UPDATE games SET b = :b, c = :c, Time = :Time WHERE a = :a");
@@ -111,7 +111,7 @@ while(1) {
             $query->bindValue(':val', $pkt, SQLITE3_TEXT);
             $result = $query->execute();
             
-            while($game = $result->fetchArray()) {
+            while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $packet = $opcode;
                 foreach($game as $key => $value) {
                     // Don't send the time or header to the peer (they don't need it).

@@ -7,7 +7,7 @@ while(1) {
     
     $result = $games->query("SELECT * FROM games");
     
-    while($game = $result->fetchArray()) {
+    while($game = $result->fetchArray(SQLITE3_ASSOC)) {
         if(time() - $game['Time'] > 30) {
             $query = $games->prepare("DELETE FROM games WHERE a = :val");
             $query->bindValue(':val', $game['a'], SQLITE3_TEXT);

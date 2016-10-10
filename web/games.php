@@ -5,7 +5,7 @@ $games = new SQLite3('../games.sqlite') or die('Unable to open database');
 
 $result = $games->query("SELECT * FROM games");
 
-while($packgame = $result->fetchArray()) {
+while($packgame = $result->fetchArray(SQLITE3_ASSOC)) {
     $strings = array();
     
     // Unpack based on the order the client sends the info
