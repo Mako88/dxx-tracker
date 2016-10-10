@@ -39,24 +39,10 @@ while(1) {
             preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
             $current = array_combine($p[1], $p[2]) + array("Time"=>time());
             
-            // Since the port is sent in an exec statement, make sure it's a number
-            if(is_numeric($current['a'])) {
-                // $iparray[0] is the IP address, however $iparray[1] is the port used
-                // to contact the tracker, NOT the port the game is hosted on. $host must
-                // be set using the port sent in 'a'.
-                //$host = $iparray[0] . ':' . $current['a'];
-                $host = $peer;
-                $current['a'] = $host;
-            }
-            // If it's not, ignore this packet.
-            else {
-                break;
-            }
-            
             
             // Check if a game is already hosted by the peer
             $query = $games->prepare("SELECT * FROM games WHERE a = :val");
-            $query->bindValue(':val', $host, SQLITE3_TEXT);
+            $query->bindValue(':val', $peer, SQLITE3_TEXT);
             $result = $query->execute();
             
             // If a game is already hosted, just change the information
@@ -64,7 +50,7 @@ while(1) {
                 $game = array_merge($game, $current);
                 
                 $query = $games->prepare("UPDATE games SET b = :b, c = :c, Time = :Time WHERE a = :a");
-                $query->bindValue(':a', $game['a'], SQLITE3_TEXT);
+                $query->bindValue(':a', $peer, SQLITE3_TEXT);
                 $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
                 $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
@@ -73,14 +59,9 @@ while(1) {
             // If a game isn't already hosted, create it
             else {
                 $game = $current;
-                
-                // Start the port-test process
-                shell_exec('php ' . __DIR__ . '/port-test.php ' . $host . ' > /dev/null 2>/dev/null &');
-                // Windows
-                //pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . $host . ' >NUL 2>NUL', 'r'));
-                
+                                
                 $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :c, :Time)");
-                $query->bindValue(':a', $game['a'], SQLITE3_TEXT);
+                $query->bindValue(':a', $peer, SQLITE3_TEXT);
                 $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
                 $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
@@ -92,13 +73,8 @@ while(1) {
         // Unregister a game
         case 22:
             
-            // Only unregister a game with the same port. This would allow the same IP address
-            // to host multiple games, though the client doesn't currently support this.
-            //$host = $iparray[0] . ':' . $pkt;
-            $host = $peer;
-            
             $query = $games->prepare("DELETE FROM games WHERE a = :val");
-            $query->bindValue(':val', $host, SQLITE3_TEXT);
+            $query->bindValue(':val', $peer, SQLITE3_TEXT);
             $query->execute();
             
         break;
@@ -106,7 +82,7 @@ while(1) {
         // List games
         case 23:
             
-            $opcode = pack("C*", 25);
+            $opcode = pack("C*", 24);
             
             // Only send games with the same header
             $query = $games->prepare("SELECT * FROM games WHERE b = :val");
@@ -115,7 +91,7 @@ while(1) {
             
             while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $packet = $opcode;
-                $packet .= "a=" . $game['a'] . ",c=" . $game['c'];
+                $packet .= "a=" . $peer . ",c=" . $game['c'];
                 stream_socket_sendto($socket, $packet, 0, $peer);
             }
     }
