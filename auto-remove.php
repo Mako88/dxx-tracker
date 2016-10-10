@@ -1,28 +1,19 @@
 <?php
 
+$games = new SQLite3('games.sqlite') or die('Unable to open database');
+
 while(1) {
-    while(file_exists("lock")) { usleep(100000); }
-    touch("lock");
-    $games = json_decode(file_get_contents('games.json'), true);
-    $unset = false;
+    // Every 10 seconds delete any game that hasn't been updated in 30 seconds
     
-    // Check the current games. If any haven't been updated in 30 seconds, remove them.
-    foreach($games as $index => $game) {
-        foreach($game as $key => $value) {
-            if($key == "Time") {
-                if(time() - $value > 30) {
-                    echo "Removing game from " . $game["Socket"] . "\n";
-                    unset($games[$index]);
-                    $unset = true;
-                }
-            }
+    $result = $games->query("SELECT * FROM games");
+    
+    while($game = $result->fetchArray()) {
+        if(time() - $game['Time'] > 30) {
+            $query = $games->prepare("DELETE FROM games WHERE a = :val");
+            $query->bindValue(':val', $game['a'], SQLITE3_TEXT);
+            $query->execute();
         }
     }
-    
-    if($unset == true) {
-        file_put_contents("games.json", json_encode($games));
-    }
-    unlink("lock");
     sleep(10);
 }
 
