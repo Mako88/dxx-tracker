@@ -23,7 +23,6 @@ shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 while(1) {
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
-    $iparray = explode(":", $peer);
     
     // Split opcode from packet
     $oparray = unpack("Copcode/a*game", $pkt);
