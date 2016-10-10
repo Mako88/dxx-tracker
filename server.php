@@ -113,13 +113,7 @@ while(1) {
             
             while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $packet = $opcode;
-                foreach($game as $key => $value) {
-                    // Don't send the time or header to the peer (they don't need it).
-                    if($key != "Time" && $key != "b") {
-                        $packet .= "$key=$value,";
-                    }
-                }
-                $packet = rtrim($packet, ",");
+                $packet .= "a=$game['a'],c=$game['c']";
                 stream_socket_sendto($socket, $packet, 0, $peer);
             }
     }
