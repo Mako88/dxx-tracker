@@ -113,7 +113,7 @@ while(1) {
             
             while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $packet = $opcode;
-                $packet .= "a=$game['a'],c=$game['c']";
+                $packet .= "a=" . $game['a'] . ",c=" . $game['c'];
                 stream_socket_sendto($socket, $packet, 0, $peer);
             }
     }
