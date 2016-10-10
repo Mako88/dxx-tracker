@@ -44,7 +44,8 @@ while(1) {
                 // $iparray[0] is the IP address, however $iparray[1] is the port used
                 // to contact the tracker, NOT the port the game is hosted on. $host must
                 // be set using the port sent in 'a'.
-                $host = $iparray[0] . ':' . $current['a'];
+                //$host = $iparray[0] . ':' . $current['a'];
+                $host = $peer;
                 $current['a'] = $host;
             }
             // If it's not, ignore this packet.
@@ -93,7 +94,8 @@ while(1) {
             
             // Only unregister a game with the same port. This would allow the same IP address
             // to host multiple games, though the client doesn't currently support this.
-            $host = $iparray[0] . ':' . $pkt;
+            //$host = $iparray[0] . ':' . $pkt;
+            $host = $peer;
             
             $query = $games->prepare("DELETE FROM games WHERE a = :val");
             $query->bindValue(':val', $host, SQLITE3_TEXT);
