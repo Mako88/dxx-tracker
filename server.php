@@ -49,23 +49,27 @@ while(1) {
             if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $game = array_merge($game, $current);
                 
-                $query = $games->prepare("BEGIN IMMEDIATE UPDATE games SET b = :b, c = :c, Time = :Time WHERE a = :a");
+                $games->exec('BEGIN IMMEDIATE;');
+                $query = $games->prepare("UPDATE games SET b = :b, c = :c, Time = :Time WHERE a = :a");
                 $query->bindValue(':a', $peer, SQLITE3_TEXT);
                 $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
                 $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                 $query->execute();
+                $games->exec('COMMIT;');
             }
             // If a game isn't already hosted, create it
             else {
                 $game = $current;
-                                
-                $query = $games->prepare("BEGIN IMMEDIATE INSERT INTO games VALUES(:a, :b, :c, :Time)");
+                
+                $games->exec('BEGIN IMMEDIATE;');
+                $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :c, :Time)");
                 $query->bindValue(':a', $peer, SQLITE3_TEXT);
                 $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
                 $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                 $query->execute();
+                $games->exec('COMMIT;');
                 
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $peer . ' > /dev/null 2>/dev/null &');
@@ -78,9 +82,11 @@ while(1) {
         // Unregister a game
         case 22:
             
-            $query = $games->prepare("BEGIN IMMEDIATE DELETE FROM games WHERE a = :val");
+            $games->exec('BEGIN IMMEDIATE;');
+            $query = $games->prepare("DELETE FROM games WHERE a = :val");
             $query->bindValue(':val', $peer, SQLITE3_TEXT);
             $query->execute();
+            $games->exec('COMMIT;');
             
         break;
         

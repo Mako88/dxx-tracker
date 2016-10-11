@@ -10,9 +10,11 @@ while(1) {
     
     while($game = $result->fetchArray(SQLITE3_ASSOC)) {
         if(time() - $game['Time'] > 30) {
-            $query = $games->prepare("BEGIN IMMEDIATE DELETE FROM games WHERE a = :val");
+            $games->exec('BEGIN IMMEDIATE;');
+            $query = $games->prepare("DELETE FROM games WHERE a = :val");
             $query->bindValue(':val', $game['a'], SQLITE3_TEXT);
             $query->execute();
+            $games->exec('COMMIT;');
         }
     }
     sleep(2);
