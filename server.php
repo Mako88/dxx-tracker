@@ -9,7 +9,7 @@ if (!$socket) {
 }
 
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
-$games->busyTimeout(3000);
+$games->busyTimeout(30000);
 
 $query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, c BLOB, Time STRING)";
 $games->exec($query) or die('Could not create database');
@@ -41,7 +41,6 @@ while(1) {
             
             
             // Check if a game is already hosted by the peer
-            $games->exec('BEGIN IMMEDIATE;');
             $query = $games->prepare("SELECT * FROM games WHERE a = :val");
             $query->bindValue(':val', $peer, SQLITE3_TEXT);
             $result = $query->execute();
@@ -50,27 +49,23 @@ while(1) {
             if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $game = array_merge($game, $current);
                 
-                $games->exec('BEGIN IMMEDIATE;');
                 $query = $games->prepare("UPDATE games SET b = :b, c = :c, Time = :Time WHERE a = :a");
                 $query->bindValue(':a', $peer, SQLITE3_TEXT);
                 $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
                 $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                 $query->execute();
-                $games->exec('COMMIT;');
             }
             // If a game isn't already hosted, create it
             else {
                 $game = $current;
-                
-                $games->exec('BEGIN IMMEDIATE;');
+
                 $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :c, :Time)");
                 $query->bindValue(':a', $peer, SQLITE3_TEXT);
                 $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
                 $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                 $query->execute();
-                $games->exec('COMMIT;');
                 
                 // Start the port-test process
                 shell_exec('php ' . __DIR__ . '/port-test.php ' . $peer . ' > /dev/null 2>/dev/null &');
@@ -83,11 +78,9 @@ while(1) {
         // Unregister a game
         case 22:
             
-            $games->exec('BEGIN IMMEDIATE;');
             $query = $games->prepare("DELETE FROM games WHERE a = :val");
             $query->bindValue(':val', $peer, SQLITE3_TEXT);
             $query->execute();
-            $games->exec('COMMIT;');
             
         break;
         
@@ -97,7 +90,6 @@ while(1) {
             $opcode = pack("C*", 24);
             
             // Only send games with the same header
-            $games->exec('BEGIN IMMEDIATE;');
             $query = $games->prepare("SELECT * FROM games WHERE b = :val");
             $query->bindValue(':val', $pkt, SQLITE3_TEXT);
             $result = $query->execute();
