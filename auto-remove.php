@@ -2,6 +2,7 @@
 
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
+$games->exec('PRAGMA journal_mode = wal;');
 
 while(1) {
     // Every 2 seconds delete any game that hasn't been updated in 30 seconds
@@ -16,6 +17,7 @@ while(1) {
         }
     }
     sleep(2);
+    $games->exec('PRAGMA wal_checkpoint;');
 }
 
 ?>

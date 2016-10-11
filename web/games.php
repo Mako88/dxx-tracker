@@ -3,6 +3,7 @@
 
 $games = new SQLite3('../games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
+$games->exec('PRAGMA journal_mode = wal;');
 
 $result = $games->query("SELECT * FROM games");
 
@@ -144,4 +145,6 @@ while($packgame = $result->fetchArray(SQLITE3_ASSOC)) {
     }
     
 }
+$games->exec('PRAGMA wal_checkpoint;');
+$games->close();
 ?>
