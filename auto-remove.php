@@ -6,6 +6,7 @@ $games->busyTimeout(3000);
 while(1) {
     // Every 2 seconds delete any game that hasn't been updated in 30 seconds
     
+    $games->exec('BEGIN IMMEDIATE;');
     $result = $games->query("SELECT * FROM games");
     
     while($game = $result->fetchArray(SQLITE3_ASSOC)) {

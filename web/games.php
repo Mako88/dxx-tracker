@@ -4,8 +4,8 @@
 $games = new SQLite3('../games.sqlite') or die('Unable to open database');
 $games->busyTimeout(3000);
 
+$games->exec('BEGIN IMMEDIATE;');
 $result = $games->query("SELECT * FROM games");
-$games->exec('COMMIT;');
 
 while($packgame = $result->fetchArray(SQLITE3_ASSOC)) {
     $strings = array();
