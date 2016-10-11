@@ -17,7 +17,6 @@ shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 while(1) {
     $games = new SQLite3('games.sqlite') or die('Unable to open database');
     $games->busyTimeout(30000);
-    $games->exec('PRAGMA journal_mode = wal;');
 
     $query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, c BLOB, Time STRING)";
     $games->exec($query) or die('Could not create database');
@@ -101,6 +100,7 @@ while(1) {
             }
     }
     $games->close();
+    unset($games);
 }
 
 ?>
