@@ -9,7 +9,7 @@ if (!$socket) {
 }
 
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
-$games->busyTimeout(60);
+$games->busyTimeout(3000);
 $query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, c BLOB, Time STRING)";
 $games->exec($query) or die('Could not create database');
 

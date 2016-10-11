@@ -2,6 +2,7 @@
 // Get a list of games and display them
 
 $games = new SQLite3('../games.sqlite') or die('Unable to open database');
+$games->busyTimeout(3000);
 
 $result = $games->query("SELECT * FROM games");
 
