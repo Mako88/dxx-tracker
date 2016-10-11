@@ -6,6 +6,7 @@ The tracker consists of 2 primary parts:
 1. The backend. This is made up of the following:
   1. `server.php` - The tracker itself
   2. `auto-remove.php` - A script to automatically remove games if they are inactive for a set amount of time (the client crashed).
+  3. `port-test.php` - A script to send ACK packets to the game host.
 2. The frontend. This is contained in the `web` directory and is made up of the following:
   1. `index.php` - The primary webpage
   2. `games.php` - A script to retrieve the list of games and display them
@@ -27,5 +28,6 @@ The opcodes are as follows:
 
   `23`: Retrieve a list of games. The format is`23HEADER` (You do not need to pass the `b=` because it is assumed). This will send each game in its own packet formatted as a string (as shown below).
   
-  `24`: This is the opcode for the list of games sent back to the client. The format is `25a=IP:PORT,c="Info 1",d="Info2"`, etc. (The `b=HEADER` is not passed, since only games which match the header received will be sent, and the header would always be the same.)
+  `24`: Game list sent to the client. The format is `25a=IP:PORT,c="Info 1",d="Info2"`, etc. (The `b=HEADER` is not passed, since only games which match the header received will be sent, and the header would always be the same.)
 
+`25`: ACK packet. The format is simply a 0 for internal ACK and a 1 for external ACK.
