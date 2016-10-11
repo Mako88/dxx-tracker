@@ -4,7 +4,7 @@
 $found = false;
 
 // Get a list of the current processes
-exec("ps aux", $output, $result);
+exec("ps aux | grep -v tmux", $output, $result);
 // Windows
 //exec("wmic process", $output, $result);
 
