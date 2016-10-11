@@ -3,7 +3,7 @@
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 
 while(1) {
-    // Every 10 seconds delete any game that hasn't been updated in 30 seconds
+    // Every 2 seconds delete any game that hasn't been updated in 30 seconds
     
     $result = $games->query("SELECT * FROM games");
     
@@ -14,7 +14,7 @@ while(1) {
             $query->execute();
         }
     }
-    sleep(10);
+    sleep(2);
 }
 
 ?>
