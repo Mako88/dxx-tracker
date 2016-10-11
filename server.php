@@ -10,8 +10,6 @@ if (!$socket) {
 
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 $games->busyTimeout(3000);
-$games->exec('PRAGMA journal_mode = wal;');
-$games->exec('PRAGMA wal_checkpoint(FULL);');
 
 $query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, c BLOB, Time STRING)";
 $games->exec($query) or die('Could not create database');
@@ -51,7 +49,7 @@ while(1) {
             if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $game = array_merge($game, $current);
                 
-                $query = $games->prepare("UPDATE games SET b = :b, c = :c, Time = :Time WHERE a = :a");
+                $query = $games->prepare("BEGIN IMMEDIATE UPDATE games SET b = :b, c = :c, Time = :Time WHERE a = :a");
                 $query->bindValue(':a', $peer, SQLITE3_TEXT);
                 $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
@@ -62,7 +60,7 @@ while(1) {
             else {
                 $game = $current;
                                 
-                $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :c, :Time)");
+                $query = $games->prepare("BEGIN IMMEDIATE INSERT INTO games VALUES(:a, :b, :c, :Time)");
                 $query->bindValue(':a', $peer, SQLITE3_TEXT);
                 $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
@@ -80,7 +78,7 @@ while(1) {
         // Unregister a game
         case 22:
             
-            $query = $games->prepare("DELETE FROM games WHERE a = :val");
+            $query = $games->prepare("BEGIN IMMEDIATE DELETE FROM games WHERE a = :val");
             $query->bindValue(':val', $peer, SQLITE3_TEXT);
             $query->execute();
             
