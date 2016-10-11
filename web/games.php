@@ -145,6 +145,5 @@ while($packgame = $result->fetchArray(SQLITE3_ASSOC)) {
     }
     
 }
-$games->exec('PRAGMA wal_checkpoint;');
 $games->close();
 ?>

@@ -8,14 +8,6 @@ if (!$socket) {
     die("$errstr ($errno)");
 }
 
-$games = new SQLite3('games.sqlite') or die('Unable to open database');
-$games->busyTimeout(30000);
-$games->exec('PRAGMA journal_mode = wal;');
-
-$query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, c BLOB, Time STRING)";
-$games->exec($query) or die('Could not create database');
-
-
 // Start the auto-remove process
 shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 // Windows
@@ -23,6 +15,13 @@ shell_exec('php ' . __DIR__ . '/auto-remove.php > /dev/null 2>/dev/null &');
 
 // Primary server loop
 while(1) {
+    $games = new SQLite3('games.sqlite') or die('Unable to open database');
+    $games->busyTimeout(30000);
+    $games->exec('PRAGMA journal_mode = wal;');
+
+    $query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, c BLOB, Time STRING)";
+    $games->exec($query) or die('Could not create database');
+    
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
     
@@ -101,7 +100,7 @@ while(1) {
                 stream_socket_sendto($socket, $packet, 0, $peer);
             }
     }
-    $games->exec('PRAGMA wal_checkpoint;');
+    $games->close();
 }
 
 ?>
