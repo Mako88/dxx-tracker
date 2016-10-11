@@ -44,6 +44,7 @@ while(1) {
             $query = $games->prepare("SELECT * FROM games WHERE a = :val");
             $query->bindValue(':val', $peer, SQLITE3_TEXT);
             $result = $query->execute();
+            $games->exec('COMMIT;');
             
             // If a game is already hosted, just change the information
             if($game = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -99,6 +100,7 @@ while(1) {
             $query = $games->prepare("SELECT * FROM games WHERE b = :val");
             $query->bindValue(':val', $pkt, SQLITE3_TEXT);
             $result = $query->execute();
+            $games->exec('COMMIT;');
             
             while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $packet = $opcode;
