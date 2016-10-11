@@ -65,6 +65,11 @@ while(1) {
                 $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
                 $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                 $query->execute();
+                
+                // Start the port-test process
+                shell_exec('php ' . __DIR__ . '/port-test.php ' . $peer . ' > /dev/null 2>/dev/null &');
+                // Windows
+                //pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . $peer . ' >NUL 2>NUL', 'r'));
             }
             
         break;
