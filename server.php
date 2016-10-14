@@ -104,6 +104,24 @@ while(1) {
                 $packet .= "a=" . $game['a'] . ",c=" . $game['c'];
                 stream_socket_sendto($socket, $packet, 0, $peer);
             }
+            
+        // Perform hole-punch
+        case 26:
+            
+            $opcode = pack("C*", 26);
+            
+            // Get the game the client wants
+            $query = $games->prepare("SELECT * FROM games WHERE a = :val");
+            $query->bindValue(':val', $pkt, SQLITE3_TEXT);
+            $result = $query->execute();
+            
+            if($game = $result->fetchArray(SQLITE3_ASSOC)) {
+                $packet = $opcode;
+                $packet .= $peer;
+                stream_socket_sendto($socket, $packet, 0, $game['a']);
+            }
+            
+        break;
     }
     $games->close();
     unset($games);
