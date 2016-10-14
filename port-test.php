@@ -37,9 +37,4 @@ if(stream_select($read, $write, $except, 5))) {
 }
 
 
-
-if(!empty($pkt)) {
-    
-}
-
 ?>
