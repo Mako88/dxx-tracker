@@ -173,7 +173,7 @@ function autoRemove() {
 // This function sends internal ACK packets
 function internalACK() {
     
-    global $peer;
+    global $peer, $socket;
     
     $packet = pack("C*", 25);
     $packet .= pack("C*", 0);
@@ -186,7 +186,7 @@ function internalACK() {
 // This function sends external ACK packets
 function externalACK() {
     
-    global $peer;
+    global $peer, $acksocket;
     
     $packet = pack("C*", 25);
     $packet .= pack("C*", 1);
