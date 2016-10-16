@@ -164,7 +164,7 @@ function autoRemove() {
     }
 }
 
-// This function performs a test hole-punch
+// This function sends ACK packets
 function portTest() {
     
     global $peer;
