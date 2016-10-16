@@ -79,9 +79,15 @@ else {
                     $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                     $query->execute();
                     
-                    // Start the port-test process as a child
-                    if(!$testpid = pcntl_fork()) {
-                        testPort();
+                    // Start the internal ACK process as a child
+                    if(!$internalpid = pcntl_fork()) {
+                        internalACK();
+                        exit();
+                    }
+                    
+                    // Start the external ACK process as a child
+                    if(!$externalpid = pcntl_fork()) {
+                        externalACK();
                         exit();
                     }
                 }
@@ -164,20 +170,24 @@ function autoRemove() {
     }
 }
 
-// This function sends ACK packets
-function portTest() {
+// This function sends internal ACK packets
+function internalACK() {
     
     global $peer;
     
-    // Send internal ACK
     $packet = pack("C*", 25);
     $packet .= pack("C*", 0);
     for($i = 0; $i < 5; $i++) {
         stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
         sleep(1);
     }
+}
+
+// This function sends external ACK packets
+function externalACK() {
     
-    // Send external ACK
+    global $peer;
+    
     $packet = pack("C*", 25);
     $packet .= pack("C*", 1);
     for($i = 0; $i < 5; $i++) {
