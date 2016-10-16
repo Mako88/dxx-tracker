@@ -1,5 +1,6 @@
 <?php
 set_time_limit(0);
+
 // Create the socket
 $socket = stream_socket_server("udp://0.0.0.0:9999", $errno, $errstr, STREAM_SERVER_BIND);
 
@@ -29,6 +30,8 @@ while(1) {
     
     echo "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
+    
+    $peer = convertPeer($peer);
     
     // Split opcode from packet
     $oparray = unpack("Copcode/a*game", $pkt);
@@ -73,9 +76,9 @@ while(1) {
                 $query->execute();
                 
                 // Start the port-test process
-                shell_exec('php ' . __DIR__ . '/port-test.php ' . $peer . ' > /dev/null 2>/dev/null &');
+                shell_exec('php ' . __DIR__ . '/port-test.php ' . peerConvert($peer, true) . ' > /dev/null 2>/dev/null &');
                 // Windows
-                //pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . $peer . ' >NUL 2>NUL', 'r'));
+                //pclose(popen('start /B cmd /C php ' . __DIR__ . '/port-test.php ' . peerConvert($peer, true) . ' >NUL 2>NUL', 'r'));
             }
             
         break;
@@ -102,7 +105,7 @@ while(1) {
             while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $packet = $opcode;
                 $packet .= "a=" . $game['a'] . ",c=" . $game['c'];
-                stream_socket_sendto($socket, $packet, 0, $peer);
+                stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
             }
             
         // Perform hole-punch
@@ -118,13 +121,38 @@ while(1) {
             if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $packet = $opcode;
                 $packet .= $peer;
-                stream_socket_sendto($socket, $packet, 0, $game['a']);
+                stream_socket_sendto($socket, $packet, 0, convertPeer($game['a'], true));
             }
             
         break;
     }
     $games->close();
     unset($games);
+}
+
+// This function converts a socket string to either a storable or usable format
+function convertPeer($socket, $usable = false) {
+    // By default convert an IP string to storable/sendable format.
+    if(!$usable) {
+        $i = strrpos($socket, ":");
+        $result = substr_replace($socket, "/", $i, 1);
+    }
+    // If usable is set, convert it to a usable format.
+    else {
+        // IPv6
+        if(strpos($socket, ":") === false) {
+            $i = strrpos($socket, "/");
+            $result = substr_replace($socket, "]:", $i, 1);
+            $result = '[' . $result;
+        }
+        // IPv4
+        else {
+            $i = strrpos($socket, "/");
+            $result = substr_replace($socket, ":", $i, 1);
+        }
+    }
+    
+    return $result;
 }
 
 ?>
