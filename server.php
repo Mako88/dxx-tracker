@@ -10,12 +10,15 @@ $games->exec($query) or die('Could not create database');
 $games->close();
 unset($games);
 
-// Create the socket
+// Create the primary socket
 $socket = stream_socket_server("udp://0.0.0.0:9999", $errno, $errstr, STREAM_SERVER_BIND);
 
+// Create the ACK socket
+$acksocket = stream_socket_server("udp://0.0.0.0:9998", $ackerrno, $ackerrstr, STREAM_SERVER_BIND);
+
 // Spit out an error if the socket couldn't be created
-if (!$socket) {
-    die("$errstr ($errno)");
+if (!$socket || !$acksocket) {
+    die("$errstr ($errno), $ackerrstr ($ackerrno)");
 }
 
 // Start the auto-remove process as a child
@@ -77,10 +80,10 @@ else {
                     $query->execute();
                     
                     // Start the port-test process as a child
-                    /*if(!$testpid = pcntl_fork()) {
+                    if(!$testpid = pcntl_fork()) {
                         testPort();
                         exit();
-                    }*/
+                    }
                 }
                 
             break;
@@ -161,9 +164,26 @@ function autoRemove() {
     }
 }
 
-// This function performs a test ACK
+// This function performs a test hole-punch
 function portTest() {
-    return;
+    
+    global $peer;
+    
+    // Send internal ACK
+    $packet = pack("C*", 25);
+    $packet .= pack("C*", 0);
+    for($i = 0; $i < 5; $i++) {
+        stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
+        sleep(1);
+    }
+    
+    // Send external ACK
+    $packet = pack("C*", 25);
+    $packet .= pack("C*", 1);
+    for($i = 0; $i < 5; $i++) {
+        stream_socket_sendto($acksocket, $packet, 0, convertPeer($peer, true));
+        sleep(1);
+    }
 }
 
 

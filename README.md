@@ -3,14 +3,12 @@ This is a simple tracker for DXX-Rebirth written in PHP.
 
 The tracker consists of 2 primary parts:
 
-1. The backend. This is made up of the following:
-  1. `server.php` - The tracker itself
-  2. `auto-remove.php` - A script to automatically remove games if they are inactive for a set amount of time (the client crashed).
-  3. `port-test.php` - A script to send ACK packets to the game host.
+1. The backend, which is contained in the `server.php` file
+
 2. The frontend. This is contained in the `web` directory and is made up of the following:
   1. `index.php` - The primary webpage
   2. `games.php` - A script to retrieve the list of games and display them
-  3. `backend.php` - A script to check if the backend is actually running.
+  3. `backend.php` - A script to check if the backend is actually running
 
 client.php is included as a test client when a Rebirth client is not available.
 
