@@ -10,13 +10,13 @@ The tracker consists of 2 primary parts:
   2. `games.php` - A script to retrieve the list of games and display them
   3. `backend.php` - A script to check if the backend is actually running
 
-client.php is included as a test client when a Rebirth client is not available.
+`client.php` is included as a test client when a Rebirth client is not available.
 
-To use this tracker, you can set the port at the top of server.php (default is 9999), then run server.php from the command line (using the "php" command).
+To use this tracker, you can set the port at the top of `server.php` (default is 9999), then run `server.php` from the command line (using the `php` command).
 
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
-The game information string is in the format `<OPCODE>a=IP:PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1:42424`. The key `b` is reserved for the header and is a string in any format set by the client.
+The game information string is in the format `<OPCODE>a=IP/PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1:42424`. The key `b` is reserved for the header and is a string in any format set by the client.
 
 The opcodes are as follows:
 
@@ -28,4 +28,6 @@ The opcodes are as follows:
   
   `24`: Game list sent to the client. The format is `24a=IP:PORT,c="Info 1",d="Info2"`, etc. (The `b=HEADER` is not passed, since only games which match the header received will be sent, and the header would always be the same.)
 
-`25`: ACK packet. The format is simply a 0 for internal ACK and a 1 for external ACK.
+  `25`: ACK packet. The format is simply the opcode followed by a 0 for internal ACK or a 1 for external ACK.
+
+  `26`: Request/perform a hole-punch. The format is `26IP/PORT`. When a client requests a hole-punch, it will send this packet to the tracker with the IP/PORT of the host it wants to connect to. The host will receive this packet from the tracker with the IP/PORT of a client it should send packets to.
