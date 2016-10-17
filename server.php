@@ -84,11 +84,17 @@ else {
                         internalACK();
                         exit();
                     }
+                    else {
+                        $children[] = $internalpid;
+                    }
                     
                     // Start the external ACK process as a child
                     if(!$externalpid = pcntl_fork()) {
                         externalACK();
                         exit();
+                    }
+                    else {
+                        $children[] = $externalpid;
                     }
                 }
                 
@@ -141,9 +147,10 @@ else {
         unset($games);
         
         // Clean up finished child processes
-        $finished = pcntl_waitpid(-1,$status,WNOHANG);
-        while($finished > 0) {
-            $finished = pcntl_waitpid(-1,$status,WNOHANG);
+        foreach($children as $index=>$child) {
+            if(pcntl_waitpid($child,$status,WNOHANG)) {
+                unset($children[$index]);
+            }
         }
     }
 }
