@@ -12,7 +12,7 @@ The tracker consists of 2 primary parts:
 
 `client.php` is included as a test client when a Rebirth client is not available.
 
-To use this tracker, you can set the port at the top of `server.php` (default is 9999), then run `server.php` from the command line (using the `php` command).
+To use this tracker, you can set the port at the top of `server.php` (default is 9999), then run `php server.php` from the command line.
 
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
