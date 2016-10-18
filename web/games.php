@@ -10,7 +10,7 @@ while($packgame = $result->fetchArray(SQLITE3_ASSOC)) {
     $strings = array();
     
     // Unpack based on the order the client sends the info
-    $game = unpack("Cupid/Smajor/Sminor/Smicro/Iid/Ilevelnum/Cgamemode/Crefuse/Cdifficulty/Cstatus/Cnumconnected/Cmaxplayers/Cflag/a*strings", $packgame['c']);
+    $game = unpack("Cupid/Smajor/Sminor/Smicro/Iid/Ilevelnum/Cgamemode/Crefuse/Cdifficulty/Cstatus/Cnumconnected/Cmaxplayers/Cflag/a*strings", $packgame['z']);
     
     // Get the host and the game version (D1X or D2X)
     $game['host'] = $packgame['a'];

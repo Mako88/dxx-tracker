@@ -1,10 +1,12 @@
 <?php
 set_time_limit(0);
 
+$children = array();
+
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
-$query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, c BLOB, Time STRING)";
+$query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, z BLOB, Time STRING)";
 $games->exec($query) or die('Could not create database');
 
 $games->close();
@@ -48,12 +50,16 @@ else {
             // Register a game
             case 21:
                 // Convert the received string into an array, adding the update time.
-                preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
-                $current = array_combine($p[1], $p[2]) + array("Time"=>time());
+                $current = array();
+                $start = 0;
+                while(preg_match("/ ([a-y]+) = ([^,]+) /x", substr($pkt, $start), $match, PREG_OFFSET_CAPTURE)) {
+                    $current[$match[1][0]] = $match[2][0];
+                    $start += mb_strlen($match[2][0]) + $match[2][1];
+                }
+                preg_match("/ z= (.+) /xs", substr($pkt, $start), $match);
+                $current['z'] = $match[1];
+                $current['Time'] = time();
                 
-                // TESTING
-                echo "Packet length: " . strlen($pkt) . "\n";
-                echo "Blob length: " . strlen($current['c']) . "\n";
                 
                 // Check if a game is already hosted by the peer
                 $query = $games->prepare("SELECT * FROM games WHERE a = :val");
@@ -64,10 +70,10 @@ else {
                 if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $game = array_merge($game, $current);
                     
-                    $query = $games->prepare("UPDATE games SET b = :b, c = :c, Time = :Time WHERE a = :a");
+                    $query = $games->prepare("UPDATE games SET b = :b, z = :z, Time = :Time WHERE a = :a");
                     $query->bindValue(':a', $peer, SQLITE3_TEXT);
                     $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
-                    $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
+                    $query->bindValue(':z', $game['z'], SQLITE3_BLOB);
                     $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                     $query->execute();
                 }
@@ -75,10 +81,10 @@ else {
                 else {
                     $game = $current;
 
-                    $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :c, :Time)");
+                    $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :z, :Time)");
                     $query->bindValue(':a', $peer, SQLITE3_TEXT);
                     $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
-                    $query->bindValue(':c', $game['c'], SQLITE3_BLOB);
+                    $query->bindValue(':z', $game['z'], SQLITE3_BLOB);
                     $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                     $query->execute();
                     
@@ -124,7 +130,7 @@ else {
                 
                 while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $packet = $opcode;
-                    $packet .= "a=" . $game['a'] . ",c=" . $game['c'];
+                    $packet .= "a=" . $game['a'] . ",z=" . $game['z'];
                     stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
                 }
                 

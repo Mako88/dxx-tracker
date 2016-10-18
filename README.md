@@ -16,7 +16,7 @@ To use this tracker, you can set the port at the top of `server.php` (default is
 
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
-The game information string is in the format `<OPCODE>a=IP/PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1:42424`. The key `b` is reserved for the header and is a string in any format set by the client.
+The game information string is in the format `<OPCODE>a=IP/PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1:42424`. The key `b` is reserved for the header and is a string in any format set by the client. The key `z` is reserved for the game info blob and must be the last key of the string.
 
 The opcodes are as follows:
 
