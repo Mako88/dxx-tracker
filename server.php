@@ -54,7 +54,7 @@ else {
                 // TESTING
                 $blob = bin2hex($current['c']);
                 echo "Blob: $blob\n";
-                echo "Blob length: " . strlen($blob) . "\n";
+                echo "Blob length: " . strlen($current['c']) . "\n";
                 
                 // Check if a game is already hosted by the peer
                 $query = $games->prepare("SELECT * FROM games WHERE a = :val");

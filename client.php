@@ -10,9 +10,8 @@ while(1) {
     // This can be changed to send any opcode and key/info combinations desired
     $opcode = pack("C*", 21);
     
-    //$packed = pack("CSSSIICCCCCCCa*", 1,0,58,1,1234,3,4,0,3,0,2,8,0,"That Guy\x00That Mission\x00That Other Mission");
+    $packed = pack("CSSSIICCCCCCCa*", 1,0,58,1,1234,3,4,0,3,0,2,8,0,"That Guy\x00That Mission\x00That Other Mission");
     
-    $packed = '1234567890123456789012';
     
     $string = $opcode . "b=D1X,c=" . $packed;
     
