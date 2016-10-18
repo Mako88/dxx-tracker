@@ -51,6 +51,10 @@ else {
                 preg_match_all("/ ([^,]+) = ([^,]+) /x", $pkt, $p);
                 $current = array_combine($p[1], $p[2]) + array("Time"=>time());
                 
+                // TESTING
+                $blob = bin2hex($current['c']);
+                echo "Blob: $blob\n";
+                echo "Blob length: " . strlen($blob) . "\n";
                 
                 // Check if a game is already hosted by the peer
                 $query = $games->prepare("SELECT * FROM games WHERE a = :val");
