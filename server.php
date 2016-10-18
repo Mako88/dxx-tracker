@@ -54,7 +54,7 @@ else {
                 $start = 0;
                 while(preg_match("/ ([a-y]+) = ([^,]+) /x", substr($pkt, $start), $match, PREG_OFFSET_CAPTURE)) {
                     $current[$match[1][0]] = $match[2][0];
-                    $start += mb_strlen($match[2][0]) + $match[2][1];
+                    $start += strlen($match[2][0]) + $match[2][1];
                 }
                 preg_match("/ z= (.+) /xs", substr($pkt, $start), $match);
                 $current['z'] = $match[1];
