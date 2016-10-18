@@ -52,7 +52,7 @@ else {
                 $current = array_combine($p[1], $p[2]) + array("Time"=>time());
                 
                 // TESTING
-                echo "Packet length: " . strlen(%pkt) . "\n";
+                echo "Packet length: " . strlen($pkt) . "\n";
                 echo "Blob length: " . strlen($current['c']) . "\n";
                 
                 // Check if a game is already hosted by the peer
