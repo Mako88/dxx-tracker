@@ -26,7 +26,7 @@ The opcodes are as follows:
 
   `23`: Retrieve a list of games. The format is`23HEADER` (You do not need to pass the `b=` because it is assumed). This will send each game in its own packet formatted as a string (as shown below).
   
-  `24`: Game list sent to the client. The format is `24a=IP:PORT,c="Info 1",d="Info2"`, etc. (The `b=HEADER` is not passed, since only games which match the header received will be sent, and the header would always be the same.)
+  `24`: Game list sent to the client. The format is `24a=IP/PORT,c="Info 1",d="Info2"`, etc. (The `b=HEADER` is not passed, since only games which match the header received will be sent, and the header would always be the same.)
 
   `25`: ACK packet. The format is simply the opcode followed by a 0 for internal ACK or a 1 for external ACK.
 
