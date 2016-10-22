@@ -6,7 +6,7 @@ $children = array();
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
-$query = "CREATE TABLE IF NOT EXISTS games (a STRING PRIMARY KEY, b STRING, z BLOB, Time STRING)";
+$query = "CREATE TABLE IF NOT EXISTS games (a STRING, b STRING, c STRING PRIMARY KEY, z BLOB, Time STRING)";
 $games->exec($query) or die('Could not create database');
 
 $games->close();
@@ -80,10 +80,21 @@ else {
                 // If a game isn't already hosted, create it
                 else {
                     $game = $current;
+                    
+                    $result = $games->query("SELECT c FROM games");
+                    
+                    while($id = $result->fetchArray(SQLITE3_ASSOC)) {
+                        $ids[] = $id['c'];
+                    }
+                    
+                    do {
+                        $c = rand(1, 32766);
+                    } while(in_array($c, $ids));
 
-                    $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :z, :Time)");
+                    $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :c, :z, :Time)");
                     $query->bindValue(':a', $peer, SQLITE3_TEXT);
                     $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
+                    $query->bindValue(':c', $game['c'], SQLITE3_INTEGER);
                     $query->bindValue(':z', $game['z'], SQLITE3_BLOB);
                     $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                     $query->execute();
@@ -130,7 +141,7 @@ else {
                 
                 while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $packet = $opcode;
-                    $packet .= "a=" . $game['a'] . ",z=" . $game['z'];
+                    $packet .= "a=" . $game['a'] . ",c=" . game['c'] . ",z=" . $game['z'];
                     stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
                 }
                 
@@ -140,7 +151,7 @@ else {
                 $opcode = pack("C*", 26);
                 
                 // Get the game the client wants
-                $query = $games->prepare("SELECT * FROM games WHERE a = :val");
+                $query = $games->prepare("SELECT * FROM games WHERE c = :val");
                 $query->bindValue(':val', $pkt, SQLITE3_TEXT);
                 $result = $query->execute();
                 
