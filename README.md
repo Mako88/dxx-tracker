@@ -16,17 +16,17 @@ To use this tracker, you can set the port at the top of `server.php` (default is
 
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
-The game information string is in the format `<OPCODE>a=IP/PORT,b=HEADER,c=ID,d="Some info"`, etc. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1/42424`. The key `b` is reserved for the header and is a string in any format set by the client. The key `c` is reserved for the ID of the game set by the tracker and is of type short. The key `z` is reserved for the game info blob and must be the last key of the string.
+The game information string is in the format `a=IP/PORT,b=HEADER,c=ID,z=BLOB`. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1/42424`. The key `b` is reserved for the header and is a string in any format set by the client. The key `c` is reserved for the ID of the game set by the tracker and is of type short. The key `z` is reserved for the game info blob and must be the last key of the string.
 
 The opcodes are as follows:
 
-  `21`: Register a game with the tracker. The format is `21b=HEADER,c="Info 1",d="Info 2"`, etc. The game is stored in the file games.json. Whenever the tracker recieves another info packet from the same IP address & port, it will update the currently hosted game (this is how score is updated, etc.). Note: subsequent info packets only need to contain the updated info, and not the complete game info. (So sending `21f=5` will update the f variable, while leaving everything else intact).
+  `21`: Register a game with the tracker. The format is `21b=HEADER,z=BLOB`. Whenever the tracker recieves another info packet from the same IP address & port, it will update the currently hosted game.
 
   `22`: Remove a game from the tracker. (The client only needs to send the opcode).
 
   `23`: Retrieve a list of games. The format is`23HEADER` (You do not need to pass the `b=` because it is assumed). This will send each game in its own packet formatted as a string (as shown below).
   
-  `24`: Game list sent to the client. The format is `24a=IP/PORT,c="Info 1",d="Info2"`, etc. (The `b=HEADER` is not passed, since only games which match the header received will be sent, and the header would always be the same.)
+  `24`: Game list sent to the client. The format is `24a=IP/PORT,c=ID,z=BLOB`. (The `b=HEADER` is not passed, since only games which match the header received will be sent, and the header would always be the same.)
 
   `25`: ACK packet. The format is simply the opcode followed by a 0 for internal ACK or a 1 for external ACK.
 
