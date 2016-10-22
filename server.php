@@ -79,6 +79,7 @@ else {
                 }
                 // If a game isn't already hosted, create it
                 else {
+                    $ids = array();
                     $game = $current;
                     
                     $result = $games->query("SELECT c FROM games");
