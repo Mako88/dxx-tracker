@@ -95,7 +95,7 @@ else {
                     $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :c, :z, :Time)");
                     $query->bindValue(':a', $peer, SQLITE3_TEXT);
                     $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
-                    $query->bindValue(':c', $game['c'], SQLITE3_INTEGER);
+                    $query->bindValue(':c', $c, SQLITE3_INTEGER);
                     $query->bindValue(':z', $game['z'], SQLITE3_BLOB);
                     $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                     $query->execute();
