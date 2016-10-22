@@ -150,11 +150,10 @@ else {
             case 26:
                 
                 $opcode = pack("C*", 26);
-                $pkt = unpack("Sid", $pkt);
                 
                 // Get the game the client wants
                 $query = $games->prepare("SELECT * FROM games WHERE c = :val");
-                $query->bindValue(':val', $pkt['id'], SQLITE3_TEXT);
+                $query->bindValue(':val', $pkt, SQLITE3_TEXT);
                 $result = $query->execute();
                 
                 if($game = $result->fetchArray(SQLITE3_ASSOC)) {
