@@ -30,4 +30,4 @@ The opcodes are as follows:
 
   `25`: ACK packet. The format is simply the opcode followed by a 0 for internal ACK or a 1 for external ACK.
 
-  `26`: Request/perform a hole-punch. The format recived by the tracker is `26ID`, and the format sent by the tracker is `26IP/Port`. When a client requests a hole-punch, it will send this packet to the tracker with the ID of the game it wants to connect to. The host will receive this packet from the tracker with the IP/PORT of a client it should send packets to.
+  `26`: Request/perform a hole-punch. The format received by the tracker is `26ID`, and the format sent by the tracker is `26IP/Port`. When a client requests a hole-punch, it will send this packet to the tracker with the ID of the game it wants to connect to. The host will receive this packet from the tracker with the IP/PORT of a client it should send packets to.
