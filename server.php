@@ -57,6 +57,12 @@ else {
                     $start += strlen($match[2][0]) + $match[2][1];
                 }
                 preg_match("/ z= (.+) /xs", substr($pkt, $start), $match);
+                
+                // Ignore the packet if it doesn't have a blob
+                if(empty($match[1])) {
+                    break;
+                }
+                
                 $current['z'] = $match[1];
                 $current['Time'] = time();
                 
