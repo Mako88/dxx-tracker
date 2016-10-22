@@ -16,7 +16,7 @@ To use this tracker, you can set the port at the top of `server.php` (default is
 
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
-The game information string is in the format `<OPCODE>a=IP/PORT,b=HEADER,c="Info 1",d="Info 2"`, etc. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1/42424`. The key `b` is reserved for the header and is a string in any format set by the client. The key `z` is reserved for the game info blob and must be the last key of the string.
+The game information string is in the format `<OPCODE>a=IP/PORT,b=HEADER,c=ID,d="Some info"`, etc. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1/42424`. The key `b` is reserved for the header and is a string in any format set by the client. The key `c` is reserved for the ID of the game set by the tracker and is of type short. The key `z` is reserved for the game info blob and must be the last key of the string.
 
 The opcodes are as follows:
 
@@ -30,4 +30,4 @@ The opcodes are as follows:
 
   `25`: ACK packet. The format is simply the opcode followed by a 0 for internal ACK or a 1 for external ACK.
 
-  `26`: Request/perform a hole-punch. The format is `26IP/PORT`. When a client requests a hole-punch, it will send this packet to the tracker with the IP/PORT of the host it wants to connect to. The host will receive this packet from the tracker with the IP/PORT of a client it should send packets to.
+  `26`: Request/perform a hole-punch. The format recived by the tracker is `26ID`, and the format sent by the tracker is `26IP/Port`. When a client requests a hole-punch, it will send this packet to the tracker with the ID of the game it wants to connect to. The host will receive this packet from the tracker with the IP/PORT of a client it should send packets to.
