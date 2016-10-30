@@ -157,6 +157,10 @@ else {
                 
                 $opcode = pack("C*", 26);
                 
+                $pkt = unpack("C*pkt", $pkt);
+                $pkt = $pkt['pkt'];
+                echo "PKT: $pkt\n";
+                
                 // Get the game the client wants
                 $query = $games->prepare("SELECT * FROM games WHERE c = :val");
                 $query->bindValue(':val', $pkt, SQLITE3_TEXT);
