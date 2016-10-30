@@ -154,22 +154,23 @@ else {
                 
             // Perform hole-punch
             case 26:
+            
+                // Unpack the GameID
+                $temp = array();
+                $temp = unpack("Spkt", $pkt);
+                $pkt = $temp['pkt'];
                 
                 $opcode = pack("C*", 26);
-                
-                $test = unpack("Spkt", $pkt);
-                $pkt = $test['pkt'];
-                echo "PKT: $pkt\n";
                 
                 // Get the game the client wants
                 $query = $games->prepare("SELECT * FROM games WHERE c = :val");
                 $query->bindValue(':val', $pkt, SQLITE3_TEXT);
                 $result = $query->execute();
                 
+                // Tell the host to send some packets to the client
                 if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $packet = $opcode;
                     $packet .= $peer;
-                    echo "Sending HP to " . $game['a'] . "\n";
                     stream_socket_sendto($socket, $packet, 0, convertPeer($game['a'], true));
                 }
                 
