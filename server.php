@@ -125,24 +125,6 @@ else {
                     }
                 }
                 
-                // TESTING
-                
-                $opcode = pack("C*", 26);
-                $packet = $opcode;
-                $packet .= $peer;
-                
-                stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
-                
-                
-                
-                
-                
-                
-                
-                // UN-TESTING
-                
-                
-                
             break;
             
             // Unregister a game
