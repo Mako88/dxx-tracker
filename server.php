@@ -157,8 +157,8 @@ else {
                 
                 $opcode = pack("C*", 26);
                 
-                $pkt = unpack("C*pkt", $pkt);
-                $pkt = $pkt['pkt'];
+                $test = unpack("Spkt", $pkt);
+                $pkt = $test['pkt'];
                 echo "PKT: $pkt\n";
                 
                 // Get the game the client wants
