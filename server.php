@@ -165,6 +165,7 @@ else {
                 if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $packet = $opcode;
                     $packet .= $peer;
+                    echo "Sending HP to " . $game['a'] . "\n";
                     stream_socket_sendto($socket, $packet, 0, convertPeer($game['a'], true));
                 }
                 
