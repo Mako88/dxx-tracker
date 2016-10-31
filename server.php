@@ -124,7 +124,7 @@ else {
                     }
                     else {
                         $children[] = $internalpid;
-                        echo date("[j/d/y G:i:s:u]") . " Sent Internal ACKs to " $peer . "\n";
+                        echo date("[j/d/y G:i:s:u]") . " Sent Internal ACKs to " . $peer . "\n";
                     }
                     
                     // Start the external ACK process as a child
@@ -134,7 +134,7 @@ else {
                     }
                     else {
                         $children[] = $externalpid;
-                        echo date("[j/d/y G:i:s:u]") . " Sent External ACKs to " $peer . "\n";
+                        echo date("[j/d/y G:i:s:u]") . " Sent External ACKs to " . $peer . "\n";
                     }
                 }
                 
@@ -146,7 +146,7 @@ else {
                 $query = $games->prepare("DELETE FROM games WHERE a = :val");
                 $query->bindValue(':val', $peer, SQLITE3_TEXT);
                 $query->execute();
-                echo date("[j/d/y G:i:s:u]") . " Removed game hosted by " $peer . "\n";
+                echo date("[j/d/y G:i:s:u]") . " Removed game hosted by " . $peer . "\n";
                 
             break;
             
@@ -164,7 +164,7 @@ else {
                     $packet = $opcode;
                     $packet .= "a=" . $game['a'] . ",c=" . pack("S", $game['c']) . ",z=" . $game['z'];
                     stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
-                    echo date("[j/d/y G:i:s:u]") . " Sending GameID " $game['c'] . "\n";
+                    echo date("[j/d/y G:i:s:u]") . " Sending GameID " . $game['c'] . "\n";
                 }
                 
             // Perform hole-punch
@@ -181,14 +181,14 @@ else {
                 $query = $games->prepare("SELECT * FROM games WHERE c = :val");
                 $query->bindValue(':val', $pkt, SQLITE3_TEXT);
                 $result = $query->execute();
-                echo date("[j/d/y G:i:s:u]") . " Finding GameID " $pkt . "\n";
+                echo date("[j/d/y G:i:s:u]") . " Finding GameID " . $pkt . "\n";
                 
                 // Tell the host to send some packets to the client
                 if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $packet = $opcode;
                     $packet .= $peer;
                     stream_socket_sendto($socket, $packet, 0, convertPeer($game['a'], true));
-                    echo date("[j/d/y G:i:s:u]") . " Sending " $peer . " to " . $game['a'] . "\n";
+                    echo date("[j/d/y G:i:s:u]") . " Sending " . $peer . " to " . $game['a'] . "\n";
                 }
                 
             break;
