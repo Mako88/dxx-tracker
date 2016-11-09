@@ -263,14 +263,13 @@ function convertPeer($socket, $usable = false) {
     }
     // If usable is set, convert it to a usable format.
     else {
+        $i = strrpos($socket, "/");
         // IPv4
         if(strpos($socket, ":") === false) {
-            $i = strrpos($socket, "/");
             $result = substr_replace($socket, ":", $i, 1);
         }
         // IPv6
         else {
-            $i = strrpos($socket, "/");
             $result = substr_replace($socket, "]:", $i, 1);
             $result = '[' . $result;
         }
