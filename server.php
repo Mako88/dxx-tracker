@@ -208,7 +208,7 @@ else {
 // This function automatically removes games that weren't ended manually
 function autoRemove() {
     while(1) {
-        $games = new SQLite3('games.sqlite') or die('Unable to open database');
+        $games = new SQLite3('games.sqlite');
         $games->busyTimeout(30000);
         // Every 5 seconds delete any game that hasn't been updated in 30 seconds
         
