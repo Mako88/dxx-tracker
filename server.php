@@ -37,7 +37,7 @@ else {
     echo date("[j/d/y G:i:s]") . " Started auto-remove process\n";
     // Primary server loop
     while(1) {
-        $games = new SQLite3('games.sqlite') or die('Unable to open database');
+        $games = new SQLite3('games.sqlite');
         $games->busyTimeout(30000);
         
         echo date("[j/d/y G:i:s]") . " Waiting for packet...\n";
