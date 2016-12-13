@@ -9,7 +9,7 @@ $games->busyTimeout(30000);
 $query = "CREATE TABLE IF NOT EXISTS games (a STRING, b STRING, c STRING PRIMARY KEY, z BLOB, Time STRING)";
 $games->exec($query) or die('Could not create database');
 
-echo date("[j/d/y G:i:s]") . " Initialized database\n";
+echo date("[m/d/y G:i:s]") . " Initialized database\n";
 
 $games->close();
 unset($games);
@@ -25,7 +25,7 @@ if (!$socket || !$acksocket) {
     die("$errstr ($errno), $ackerrstr ($ackerrno)");
 }
 
-echo date("[j/d/y G:i:s]") . " Opened sockets\n";
+echo date("[m/d/y G:i:s]") . " Opened sockets\n";
 
 // Start the auto-remove process as a child
 if (!$removepid = pcntl_fork()) {
@@ -34,13 +34,13 @@ if (!$removepid = pcntl_fork()) {
 // Continue the primary process
 else {
     
-    echo date("[j/d/y G:i:s]") . " Started auto-remove process\n";
+    echo date("[m/d/y G:i:s]") . " Started auto-remove process\n";
     // Primary server loop
     while(1) {
         $games = new SQLite3('games.sqlite');
         $games->busyTimeout(30000);
         
-        echo date("[j/d/y G:i:s]") . " Waiting for packet...\n";
+        echo date("[m/d/y G:i:s]") . " Waiting for packet...\n";
         $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
         
         $peer = convertPeer($peer);
@@ -49,7 +49,7 @@ else {
         $oparray = unpack("Copcode/a*game", $pkt);
         $pkt = $oparray['game'];
         
-        echo date("[j/d/y G:i:s]") . " Recieved opcode " . $oparray['opcode'] . " from " . $peer . "\n";
+        echo date("[m/d/y G:i:s]") . " Recieved opcode " . $oparray['opcode'] . " from " . $peer . "\n";
             
         switch($oparray['opcode']) {
                 
@@ -89,7 +89,7 @@ else {
                     $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                     $query->execute();
                     
-                    echo date("[j/d/y G:i:s]") . " Updated GameID " . $game['c'] . "\n";
+                    echo date("[m/d/y G:i:s]") . " Updated GameID " . $game['c'] . "\n";
                     
                 }
                 // If a game isn't already hosted, create it
@@ -115,7 +115,7 @@ else {
                     $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
                     $query->execute();
                     
-                    echo date("[j/d/y G:i:s]") . " Listed GameID " . $c . "\n";
+                    echo date("[m/d/y G:i:s]") . " Listed GameID " . $c . "\n";
                     
                     // Start the internal ACK process as a child
                     if(!$internalpid = pcntl_fork()) {
@@ -124,7 +124,7 @@ else {
                     }
                     else {
                         $children[] = $internalpid;
-                        echo date("[j/d/y G:i:s]") . " Sent Internal ACKs to " . $peer . "\n";
+                        echo date("[m/d/y G:i:s]") . " Sent Internal ACKs to " . $peer . "\n";
                     }
                     
                     // Start the external ACK process as a child
@@ -134,7 +134,7 @@ else {
                     }
                     else {
                         $children[] = $externalpid;
-                        echo date("[j/d/y G:i:s]") . " Sent External ACKs to " . $peer . "\n";
+                        echo date("[m/d/y G:i:s]") . " Sent External ACKs to " . $peer . "\n";
                     }
                 }
                 
@@ -146,7 +146,7 @@ else {
                 $query = $games->prepare("DELETE FROM games WHERE a = :val");
                 $query->bindValue(':val', $peer, SQLITE3_TEXT);
                 $query->execute();
-                echo date("[j/d/y G:i:s]") . " Removed game hosted by " . $peer . "\n";
+                echo date("[m/d/y G:i:s]") . " Removed game hosted by " . $peer . "\n";
                 
             break;
             
@@ -164,7 +164,7 @@ else {
                     $packet = $opcode;
                     $packet .= "a=" . $game['a'] . ",c=" . pack("S", $game['c']) . ",z=" . $game['z'];
                     stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
-                    echo date("[j/d/y G:i:s]") . " Sending GameID " . $game['c'] . "\n";
+                    echo date("[m/d/y G:i:s]") . " Sending GameID " . $game['c'] . "\n";
                 }
                 
             // Perform hole-punch
@@ -181,14 +181,14 @@ else {
                 $query = $games->prepare("SELECT * FROM games WHERE c = :val");
                 $query->bindValue(':val', $pkt, SQLITE3_TEXT);
                 $result = $query->execute();
-                echo date("[j/d/y G:i:s]") . " Finding GameID " . $pkt . "\n";
+                echo date("[m/d/y G:i:s]") . " Finding GameID " . $pkt . "\n";
                 
                 // Tell the host to send some packets to the client
                 if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $packet = $opcode;
                     $packet .= $peer;
                     stream_socket_sendto($socket, $packet, 0, convertPeer($game['a'], true));
-                    echo date("[j/d/y G:i:s]") . " Sending " . $peer . " to " . $game['a'] . "\n";
+                    echo date("[m/d/y G:i:s]") . " Sending " . $peer . " to " . $game['a'] . "\n";
                 }
                 
             break;
