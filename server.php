@@ -167,6 +167,8 @@ else {
                     echo date("[m/d/y G:i:s]") . " Sending GameID " . $game['c'] . "\n";
                 }
                 
+            break;
+                
             // Perform hole-punch
             case 26:
             
