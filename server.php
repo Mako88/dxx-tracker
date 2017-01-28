@@ -111,6 +111,11 @@ else {
                     
                     $result = $games->query("SELECT id FROM games");
                     
+                    if($result->numColumns() > 32765) {
+                        echo $date . " Could not add game. Max number reached." . "\n";
+                        break;
+                    }
+                    
                     while($id = $result->fetchArray(SQLITE3_ASSOC)) {
                         $ids[] = $id['id'];
                     }
