@@ -75,6 +75,18 @@ else {
                 $current['time'] = time();
                 
                 
+                // Check number of games hosted by this IP. Limit to 20.
+                $ip = substr($peer, 0, strpos($peer, "/"));
+                $query = $games->prepare("SELECT * FROM games WHERE peer LIKE '%:val%'");
+                $query->bindValue(':val', $ip, SQLITE3_TEXT);
+                $numgames = $query->execute();
+                if($numgames->numColumns() > 20) {
+                    break;
+                }
+        
+                while($game = $result->fetchArray(SQLITE3_ASSOC)) {
+                
+                
                 // Check if a game is already hosted by the peer
                 $query = $games->prepare("SELECT * FROM games WHERE peer = :val");
                 $query->bindValue(':val', $peer, SQLITE3_TEXT);
@@ -96,6 +108,7 @@ else {
                 }
                 // If a game isn't already hosted, create it
                 else {
+                    
                     $ids = array();
                     $game = $current;
                     
