@@ -83,9 +83,6 @@ else {
                 if($numgames->numColumns() > 20) {
                     break;
                 }
-        
-                while($game = $result->fetchArray(SQLITE3_ASSOC)) {
-                
                 
                 // Check if a game is already hosted by the peer
                 $query = $games->prepare("SELECT * FROM games WHERE peer = :val");
