@@ -6,7 +6,7 @@ $children = array();
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
-$query = "CREATE TABLE IF NOT EXISTS games (peer STRING, header STRING, id STRING PRIMARY KEY, blob BLOB, time STRING)";
+$query = "CREATE TABLE IF NOT EXISTS games (peer STRING, header STRING, id INTEGER PRIMARY KEY, blob BLOB, time STRING)";
 $games->exec($query) or die('Could not create database');
 
 echo date("[m/d/y G:i:s]") . " Initialized database\n";
