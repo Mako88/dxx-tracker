@@ -112,7 +112,7 @@ else {
                     $result = $games->query("SELECT id FROM games");
                     
                     if($result->numColumns() > 32765) {
-                        echo $date . " Could not add game. Max number reached." . "\n";
+                        echo $date . " Could not add game. Max number reached.\n";
                         break;
                     }
                     
@@ -136,7 +136,7 @@ else {
                     
                     // Start the internal ACK process as a child
                     if(!$internalpid = pcntl_fork()) {
-                        internalACK();
+                        sendACK(0);
                         exit();
                     }
                     else {
@@ -146,7 +146,7 @@ else {
                     
                     // Start the external ACK process as a child
                     if(!$externalpid = pcntl_fork()) {
-                        externalACK();
+                        sendACK(1);
                         exit();
                     }
                     else {
@@ -246,28 +246,17 @@ function autoRemove() {
     }
 }
 
-// This function sends internal ACK packets
-function internalACK() {
-    
+
+function sendACK($type) {
     global $peer, $socket;
     
     $packet = pack("C*", 25);
-    $packet .= pack("C*", 0);
-    for($i = 0; $i < 5; $i++) {
-        stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
-        sleep(1);
-    }
-}
-
-// This function sends external ACK packets
-function externalACK() {
+    $packet .= pack("C*", $type);
     
-    global $peer, $acksocket;
+    $peer = convertPeer($peer, true);
     
-    $packet = pack("C*", 25);
-    $packet .= pack("C*", 1);
     for($i = 0; $i < 5; $i++) {
-        stream_socket_sendto($acksocket, $packet, 0, convertPeer($peer, true));
+        stream_socket_sendto($socket, $packet, 0, $peer);
         sleep(1);
     }
 }
