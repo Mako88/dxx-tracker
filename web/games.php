@@ -4,6 +4,11 @@
 $games = new SQLite3('../games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
+// Delete any game that hasn't been updated in 30 seconds
+$query = $games->prepare("DELETE FROM games WHERE :curtime - time > 30");
+$query->bindValue(':curtime', time(), SQLITE3_INTEGER);
+$query->execute();
+
 $result = $games->query("SELECT * FROM games");
 
 while($packgame = $result->fetchArray(SQLITE3_ASSOC)) {
