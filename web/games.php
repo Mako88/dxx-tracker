@@ -21,6 +21,10 @@ while($packgame = $result->fetchArray(SQLITE3_ASSOC)) {
     $game['host'] = $packgame['peer'];
     preg_match("/D[1-2]X/", $packgame['header'], $game['version']);
     
+    if( !(isset($_GET['d1x']) && $game['version'][0] == "D1X") || (isset($_GET['d2x']) && $game['version'][0] == "D2X") ) {
+        continue;
+    }
+    
     // Split the strings and set them to keys (favor Mission Title over Mission Name)
     $strings = explode("\x00", $game['strings']);
     
@@ -133,20 +137,17 @@ while($packgame = $result->fetchArray(SQLITE3_ASSOC)) {
         $game['status'] = "Between";
     }
     
-    // Conditionally echo the game depending on if the current game is the same version we want.
-    if( (isset($_GET['d1x']) && $game['version'][0] == "D1X") || (isset($_GET['d2x']) && $game['version'][0] == "D2X") ) {
-        echo "
-        <tr>
-            <td>" . $game['version'][0] . " " . $game['major'] . "." . $game['minor'] . "." . $game['micro'] . "</td>
-            <td>" . $game['gamename'] . "</td>
-            <td>" . $game['mission'] . "</td>
-            <td>" . $game['numconnected'] . "/" . $game['maxplayers'] . "</td>
-            <td>" . $game['gamemode'] . "</td>
-            <td>" . $game['status'] . "</td>
-            <td>" . $game['host'] . "</td>
-        </tr>
-        ";
-    }
+    echo "
+    <tr>
+        <td>" . $game['version'][0] . " " . $game['major'] . "." . $game['minor'] . "." . $game['micro'] . "</td>
+        <td>" . $game['gamename'] . "</td>
+        <td>" . $game['mission'] . "</td>
+        <td>" . $game['numconnected'] . "/" . $game['maxplayers'] . "</td>
+        <td>" . $game['gamemode'] . "</td>
+        <td>" . $game['status'] . "</td>
+        <td>" . $game['host'] . "</td>
+    </tr>
+    ";
     
 }
 $games->close();
