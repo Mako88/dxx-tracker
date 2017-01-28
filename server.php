@@ -248,7 +248,7 @@ function autoRemove() {
 
 
 function sendACK($type) {
-    global $peer, $socket;
+    global $peer, $socket, $acksocket;
     
     $packet = pack("C*", 25);
     $packet .= pack("C*", $type);
@@ -256,7 +256,14 @@ function sendACK($type) {
     $peer = convertPeer($peer, true);
     
     for($i = 0; $i < 5; $i++) {
-        stream_socket_sendto($socket, $packet, 0, $peer);
+        // External ACK
+        if($type) {
+            stream_socket_sendto($acksocket, $packet, 0, $peer);
+        }
+        // Internal ACK
+        else {
+            stream_socket_sendto($socket, $packet, 0, $peer);
+        }
         sleep(1);
     }
 }
