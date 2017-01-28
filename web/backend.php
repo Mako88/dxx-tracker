@@ -1,16 +1,10 @@
 <?php
-// Check if the backend is running
 
-$found = false;
+// Get the PID of the server
+$serverpid = file_get_contents("../server.pid");
 
-// Get a list of the current processes
-exec("ps aux | grep -v tmux", $output, $result);
-
-// See if one of them contains "server.php"
-foreach ($output AS $line) if(strpos($line, "server.php")) $found = true;
-
-// Echo the results
-if ($found == true) {
+// Check if it's running and echo the results
+if (file_exists("/proc/$serverpid")) {
     echo "<span class=\"up\">UP</span>";
 }
 else {

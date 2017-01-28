@@ -29,6 +29,10 @@ if (!$socket || !$acksocket) {
 
 echo $date . " Opened sockets\n";
 
+file_put_contents("server.pid", getmypid());
+
+echo $date . " Created PID file\n";
+
 // Primary server loop
 while(1) {
     $games = new SQLite3('games.sqlite');
