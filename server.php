@@ -8,7 +8,7 @@ $children = array();
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
-$query = "CREATE TABLE IF NOT EXISTS games (peer STRING, header STRING, id INTEGER PRIMARY KEY, blob BLOB, time STRING)";
+$query = "CREATE TABLE IF NOT EXISTS games (peer STRING, header STRING, id INTEGER PRIMARY KEY, blob BLOB, time INTEGER)";
 $games->exec($query) or die('Could not create database');
 
 echo $date . " Initialized database\n";
@@ -229,18 +229,14 @@ function autoRemove() {
     while(1) {
         $games = new SQLite3('games.sqlite');
         $games->busyTimeout(30000);
+        
         // Every 5 seconds delete any game that hasn't been updated in 30 seconds
-        
-        $result = $games->query("SELECT * FROM games");
-        
-        while($game = $result->fetchArray(SQLITE3_ASSOC)) {
-            if(time() - $game['time'] > 30) {
-                $query = $games->prepare("DELETE FROM games WHERE peer = :val");
-                $query->bindValue(':val', $game['peer'], SQLITE3_TEXT);
-                $query->execute();
-            }
-        }
+        $query = $games->prepare("DELETE FROM games WHERE peer = :peer AND :curtime - time > 30");
+        $query->bindValue(':peer', $game['peer'], SQLITE3_TEXT);
+        $query->bindValue(':curtime', time(), SQLITE3_INTEGER);
+        $query->execute();
         sleep(5);
+        
         $games->close();
         unset($games);
     }
