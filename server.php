@@ -6,7 +6,7 @@ $children = array();
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
-$query = "CREATE TABLE IF NOT EXISTS games (a STRING, b STRING, c STRING PRIMARY KEY, z BLOB, Time STRING)";
+$query = "CREATE TABLE IF NOT EXISTS games (peer STRING, header STRING, id STRING PRIMARY KEY, blob BLOB, time STRING)";
 $games->exec($query) or die('Could not create database');
 
 echo date("[m/d/y G:i:s]") . " Initialized database\n";
@@ -69,12 +69,12 @@ else {
                     break;
                 }
                 
-                $current['z'] = $match[1];
-                $current['Time'] = time();
+                $current['blob'] = $match[1];
+                $current['time'] = time();
                 
                 
                 // Check if a game is already hosted by the peer
-                $query = $games->prepare("SELECT * FROM games WHERE a = :val");
+                $query = $games->prepare("SELECT * FROM games WHERE peer = :val");
                 $query->bindValue(':val', $peer, SQLITE3_TEXT);
                 $result = $query->execute();
                 
@@ -82,14 +82,14 @@ else {
                 if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $game = array_merge($game, $current);
                     
-                    $query = $games->prepare("UPDATE games SET b = :b, z = :z, Time = :Time WHERE a = :a");
-                    $query->bindValue(':a', $peer, SQLITE3_TEXT);
-                    $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
-                    $query->bindValue(':z', $game['z'], SQLITE3_BLOB);
-                    $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
+                    $query = $games->prepare("UPDATE games SET header = :header, blob = :blob, time = :time WHERE peer = :peer");
+                    $query->bindValue(':peer', $peer, SQLITE3_TEXT);
+                    $query->bindValue(':header', $game['header'], SQLITE3_TEXT);
+                    $query->bindValue(':blob', $game['blob'], SQLITE3_BLOB);
+                    $query->bindValue(':time', $game['time'], SQLITE3_INTEGER);
                     $query->execute();
                     
-                    echo date("[m/d/y G:i:s]") . " Updated GameID " . $game['c'] . "\n";
+                    echo date("[m/d/y G:i:s]") . " Updated GameID " . $game['id'] . "\n";
                     
                 }
                 // If a game isn't already hosted, create it
@@ -97,25 +97,25 @@ else {
                     $ids = array();
                     $game = $current;
                     
-                    $result = $games->query("SELECT c FROM games");
+                    $result = $games->query("SELECT id FROM games");
                     
                     while($id = $result->fetchArray(SQLITE3_ASSOC)) {
-                        $ids[] = $id['c'];
+                        $ids[] = $id['id'];
                     }
                     
                     do {
-                        $c = rand(1, 32766);
-                    } while(in_array($c, $ids));
+                        $newid = rand(1, 32766);
+                    } while(in_array($newid, $ids));
 
-                    $query = $games->prepare("INSERT INTO games VALUES(:a, :b, :c, :z, :Time)");
-                    $query->bindValue(':a', $peer, SQLITE3_TEXT);
-                    $query->bindValue(':b', $game['b'], SQLITE3_TEXT);
-                    $query->bindValue(':c', $c, SQLITE3_INTEGER);
-                    $query->bindValue(':z', $game['z'], SQLITE3_BLOB);
-                    $query->bindValue(':Time', $game['Time'], SQLITE3_INTEGER);
+                    $query = $games->prepare("INSERT INTO games VALUES(:peer, :header, :id, :blob, :time)");
+                    $query->bindValue(':peer', $peer, SQLITE3_TEXT);
+                    $query->bindValue(':header', $game['header'], SQLITE3_TEXT);
+                    $query->bindValue(':id', $newid, SQLITE3_INTEGER);
+                    $query->bindValue(':blob', $game['blob'], SQLITE3_BLOB);
+                    $query->bindValue(':time', $game['time'], SQLITE3_INTEGER);
                     $query->execute();
                     
-                    echo date("[m/d/y G:i:s]") . " Listed GameID " . $c . "\n";
+                    echo date("[m/d/y G:i:s]") . " Listed GameID " . $newid . "\n";
                     
                     // Start the internal ACK process as a child
                     if(!$internalpid = pcntl_fork()) {
@@ -143,7 +143,7 @@ else {
             // Unregister a game
             case 22:
                 
-                $query = $games->prepare("DELETE FROM games WHERE a = :val");
+                $query = $games->prepare("DELETE FROM games WHERE peer = :val");
                 $query->bindValue(':val', $peer, SQLITE3_TEXT);
                 $query->execute();
                 echo date("[m/d/y G:i:s]") . " Removed game hosted by " . $peer . "\n";
@@ -156,15 +156,15 @@ else {
                 $opcode = pack("C*", 24);
                 
                 // Only send games with the same header
-                $query = $games->prepare("SELECT * FROM games WHERE b = :val");
+                $query = $games->prepare("SELECT * FROM games WHERE header = :val");
                 $query->bindValue(':val', $pkt, SQLITE3_TEXT);
                 $result = $query->execute();
                 
                 while($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $packet = $opcode;
-                    $packet .= "a=" . $game['a'] . ",c=" . pack("S", $game['c']) . ",z=" . $game['z'];
+                    $packet .= "a=" . $game['peer'] . ",c=" . pack("S", $game['id']) . ",z=" . $game['blob'];
                     stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
-                    echo date("[m/d/y G:i:s]") . " Sending GameID " . $game['c'] . "\n";
+                    echo date("[m/d/y G:i:s]") . " Sending GameID " . $game['id'] . "\n";
                 }
                 
             break;
@@ -180,7 +180,7 @@ else {
                 $opcode = pack("C*", 26);
                 
                 // Get the game the client wants
-                $query = $games->prepare("SELECT * FROM games WHERE c = :val");
+                $query = $games->prepare("SELECT * FROM games WHERE id = :val");
                 $query->bindValue(':val', $pkt, SQLITE3_TEXT);
                 $result = $query->execute();
                 echo date("[m/d/y G:i:s]") . " Finding GameID " . $pkt . "\n";
@@ -189,8 +189,8 @@ else {
                 if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                     $packet = $opcode;
                     $packet .= $peer;
-                    stream_socket_sendto($socket, $packet, 0, convertPeer($game['a'], true));
-                    echo date("[m/d/y G:i:s]") . " Sending " . $peer . " to " . $game['a'] . "\n";
+                    stream_socket_sendto($socket, $packet, 0, convertPeer($game['peer'], true));
+                    echo date("[m/d/y G:i:s]") . " Sending " . $peer . " to " . $game['peer'] . "\n";
                 }
                 
             break;
@@ -217,9 +217,9 @@ function autoRemove() {
         $result = $games->query("SELECT * FROM games");
         
         while($game = $result->fetchArray(SQLITE3_ASSOC)) {
-            if(time() - $game['Time'] > 30) {
-                $query = $games->prepare("DELETE FROM games WHERE a = :val");
-                $query->bindValue(':val', $game['a'], SQLITE3_TEXT);
+            if(time() - $game['time'] > 30) {
+                $query = $games->prepare("DELETE FROM games WHERE peer = :val");
+                $query->bindValue(':val', $game['peer'], SQLITE3_TEXT);
                 $query->execute();
             }
         }
