@@ -1,7 +1,7 @@
 <?php
 set_time_limit(0);
 
-$date = date("[y/m/d G:i:s]")
+$date = date("[y/m/d G:i:s]");
 
 $children = array();
 
@@ -69,6 +69,7 @@ while(1) {
 
             $current['blob'] = $match[1];
             $current['time'] = time();
+            $current['header'] = $current['b'];
 
 
             // Check number of games hosted by this IP. Limit to 20.
