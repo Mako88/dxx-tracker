@@ -208,8 +208,6 @@ while(1) {
                 break;
             }
 
-            $opcode = pack("C*", 26);
-
             // Get the game the client wants
             $query = $games->prepare("SELECT * FROM games WHERE id = :val");
             $query->bindValue(':val', $pkt, SQLITE3_TEXT);
@@ -218,10 +216,16 @@ while(1) {
 
             // Tell the host to send some packets to the client
             if($game = $result->fetchArray(SQLITE3_ASSOC)) {
-                $packet = $opcode;
+                $packet = pack("C*", 26);
                 $packet .= $peer;
                 stream_socket_sendto($socket, $packet, 0, convertPeer($game['peer'], true));
                 echo $date . " Sending " . $peer . " to " . $game['peer'] . "\n";
+            }
+            else {
+                $packet = pack("C*", 27);
+                $packet .= pack("S", $pkt);
+                stream_socket_sendto($socket, $packet, 0, convertPeer($peer), true));
+                echo $date . " Informing " . $peer . " that GameID " . $pkt . " is invalid\n";
             }
 
         break;
