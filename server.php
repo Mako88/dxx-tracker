@@ -46,8 +46,14 @@ while(1) {
     // Split opcode from packet
     $oparray = unpack("Copcode/a*game", $pkt);
     $pkt = $oparray['game'];
-
-    echo $date . " Recieved opcode " . $oparray['opcode'] . " from " . $peer . "\n";
+    
+    if(is_numeric($oparray['opcode'])) {
+        echo $date . " Recieved opcode " . $oparray['opcode'] . " from " . $peer . "\n";
+    }
+    else {
+        echo $date . " Recieved non-numeric opcode from " . $peer . "\n";
+    }
+    
 
     switch($oparray['opcode']) {
 
@@ -196,6 +202,11 @@ while(1) {
             $temp = array();
             $temp = unpack("Spkt", $pkt);
             $pkt = $temp['pkt'];
+            
+            if(!is_numeric($pkt)) {
+                echo $date . " Recieved non-numeric GameID from " . $peer . "\n";
+                break;
+            }
 
             $opcode = pack("C*", 26);
 
