@@ -1,7 +1,7 @@
 <?php
 set_time_limit(0);
 
-$date = date("[y/m/d G:i:s]");
+$date = date("[y/m/d G:i:s] ");
 
 $children = array();
 
@@ -11,7 +11,7 @@ $games->busyTimeout(30000);
 $query = "CREATE TABLE IF NOT EXISTS games (peer STRING, header STRING, id INTEGER PRIMARY KEY, blob BLOB, time INTEGER)";
 $games->exec($query) or die('Could not create database');
 
-echo $date . " Initialized database\n";
+echo $date . "Initialized database\n";
 
 $games->close();
 unset($games);
@@ -27,18 +27,18 @@ if (!$socket || !$acksocket) {
     die("$errstr ($errno), $ackerrstr ($ackerrno)");
 }
 
-echo $date . " Opened sockets\n";
+echo $date . "Opened sockets\n";
 
 file_put_contents("server.pid", getmypid());
 
-echo $date . " Created PID file\n";
+echo $date . "Created PID file\n";
 
 // Primary server loop
 while(1) {
     $games = new SQLite3('games.sqlite');
     $games->busyTimeout(30000);
 
-    echo $date . " Waiting for packet...\n";
+    echo $date . "Waiting for packet...\n";
     $pkt = stream_socket_recvfrom($socket, 99999, 0, $peer);
 
     $peer = convertPeer($peer);
@@ -48,10 +48,10 @@ while(1) {
     $pkt = $oparray['game'];
     
     if(is_numeric($oparray['opcode'])) {
-        echo $date . " Recieved opcode " . $oparray['opcode'] . " from " . $peer . "\n";
+        echo $date . "Recieved opcode " . $oparray['opcode'] . " from " . $peer . "\n";
     }
     else {
-        echo $date . " Recieved non-numeric opcode from " . $peer . "\n";
+        echo $date . "Recieved non-numeric opcode from " . $peer . "\n";
     }
     
 
@@ -79,11 +79,12 @@ while(1) {
 
 
             // Check number of games hosted by this IP. Limit to 20.
-            $ip = substr($peer, 0, strpos($peer, "/"));
-            $query = $games->prepare("SELECT * FROM games WHERE peer LIKE '%:val%'");
+            $ip = '%' . substr($peer, 0, strpos($peer, "/")) . '%';
+            $query = $games->prepare("SELECT * FROM games WHERE peer LIKE :val");
             $query->bindValue(':val', $ip, SQLITE3_TEXT);
-            $numgames = $query->execute();
+            $numgames = $query->execute();            
             if($numgames->numColumns() > 20) {
+                echo $date . substr($peer, 0, strpos($peer, "/")) . " Already has the max number of games hosted. Skipping.\n";
                 break;
             }
 
@@ -103,7 +104,7 @@ while(1) {
                 $query->bindValue(':time', $game['time'], SQLITE3_INTEGER);
                 $query->execute();
 
-                echo $date . " Updated GameID " . $game['id'] . "\n";
+                echo $date . "Updated GameID " . $game['id'] . "\n";
 
             }
             // If a game isn't already hosted, create it
@@ -115,7 +116,7 @@ while(1) {
                 $result = $games->query("SELECT id FROM games");
 
                 if($result->numColumns() > 32765) {
-                    echo $date . " Could not add game. Max number reached.\n";
+                    echo $date . "Could not add game. Max number reached.\n";
                     break;
                 }
 
@@ -135,15 +136,15 @@ while(1) {
                 $query->bindValue(':time', $game['time'], SQLITE3_INTEGER);
                 $query->execute();
 
-                echo $date . " Listed GameID " . $newid . "\n";
+                echo $date . "Listed GameID " . $newid . "\n";
 
                 // Send internal ACKs
                 sendACK(0, $peer);
-                echo $date . " Sent Internal ACKs to " . $peer . "\n";
+                echo $date . "Sent Internal ACKs to " . $peer . "\n";
 
                 // Send external ACKs
                 sendACK(1, $peer);
-                echo $date . " Sent External ACKs to " . $peer . "\n";
+                echo $date . "Sent External ACKs to " . $peer . "\n";
             }
 
         break;
@@ -154,7 +155,7 @@ while(1) {
             $query = $games->prepare("DELETE FROM games WHERE peer = :val");
             $query->bindValue(':val', $peer, SQLITE3_TEXT);
             $query->execute();
-            echo $date . " Removed game hosted by " . $peer . "\n";
+            echo $date . "Removed game hosted by " . $peer . "\n";
 
         break;
 
@@ -162,7 +163,7 @@ while(1) {
         case 23:
             
             // Delete any game that hasn't been updated in 30 seconds
-            echo $date . " Auto-removing stale games.\n";
+            echo $date . "Auto-removing stale games.\n";
             $query = $games->prepare("DELETE FROM games WHERE :curtime - time > 30");
             $query->bindValue(':curtime', time(), SQLITE3_INTEGER);
             $query->execute();
@@ -178,7 +179,7 @@ while(1) {
                 $packet = $opcode;
                 $packet .= "a=" . $game['peer'] . ",c=" . pack("S", $game['id']) . ",z=" . $game['blob'];
                 stream_socket_sendto($socket, $packet, 0, convertPeer($peer, true));
-                echo $date . " Sending GameID " . $game['id'] . "\n";
+                echo $date . "Sending GameID " . $game['id'] . "\n";
             }
 
         break;
@@ -192,7 +193,7 @@ while(1) {
             $pkt = $temp['pkt'];
             
             if(!is_numeric($pkt)) {
-                echo $date . " Recieved non-numeric GameID from " . $peer . "\n";
+                echo $date . "Recieved non-numeric GameID from " . $peer . "\n";
                 break;
             }
 
@@ -200,20 +201,20 @@ while(1) {
             $query = $games->prepare("SELECT * FROM games WHERE id = :val");
             $query->bindValue(':val', $pkt, SQLITE3_TEXT);
             $result = $query->execute();
-            echo $date . " Finding GameID " . $pkt . "\n";
+            echo $date . "Finding GameID " . $pkt . "\n";
 
             // Tell the host to send some packets to the client
             if($game = $result->fetchArray(SQLITE3_ASSOC)) {
                 $packet = pack("C*", 26);
                 $packet .= $peer;
                 stream_socket_sendto($socket, $packet, 0, convertPeer($game['peer'], true));
-                echo $date . " Sending " . $peer . " to " . $game['peer'] . "\n";
+                echo $date . "Sending " . $peer . " to " . $game['peer'] . "\n";
             }
             else {
                 $packet = pack("C*", 27);
                 $packet .= pack("S", $pkt);
                 stream_socket_sendto($socket, $packet, 0, convertPeer($peer), true);
-                echo $date . " Informing " . $peer . " that GameID " . $pkt . " is invalid\n";
+                echo $date . "Informing " . $peer . " that GameID " . $pkt . " is invalid\n";
             }
 
         break;
