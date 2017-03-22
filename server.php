@@ -137,25 +137,13 @@ while(1) {
 
                 echo $date . " Listed GameID " . $newid . "\n";
 
-                // Start the internal ACK process as a child
-                if(!$internalpid = pcntl_fork()) {
-                    sendACK(0);
-                    exit();
-                }
-                else {
-                    $children[] = $internalpid;
-                    echo $date . " Sent Internal ACKs to " . $peer . "\n";
-                }
+                // Send internal ACKs
+                sendACK(0, $peer);
+                echo $date . " Sent Internal ACKs to " . $peer . "\n";
 
-                // Start the external ACK process as a child
-                if(!$externalpid = pcntl_fork()) {
-                    sendACK(1);
-                    exit();
-                }
-                else {
-                    $children[] = $externalpid;
-                    echo $date . " Sent External ACKs to " . $peer . "\n";
-                }
+                // Send external ACKs
+                sendACK(1, $peer);
+                echo $date . " Sent External ACKs to " . $peer . "\n";
             }
 
         break;
@@ -224,7 +212,7 @@ while(1) {
             else {
                 $packet = pack("C*", 27);
                 $packet .= pack("S", $pkt);
-                stream_socket_sendto($socket, $packet, 0, convertPeer($peer), true));
+                stream_socket_sendto($socket, $packet, 0, convertPeer($peer), true);
                 echo $date . " Informing " . $peer . " that GameID " . $pkt . " is invalid\n";
             }
 
@@ -233,17 +221,11 @@ while(1) {
     $games->close();
     unset($games);
 
-    // Clean up finished child processes
-    foreach($children as $index=>$child) {
-        if(pcntl_waitpid($child,$status,WNOHANG)) {
-            unset($children[$index]);
-        }
-    }
 }
 
 
-function sendACK($type) {
-    global $peer, $socket, $acksocket;
+function sendACK($type, $peer) {
+    global $socket, $acksocket;
     
     $packet = pack("C*", 25);
     $packet .= pack("C*", $type);
@@ -259,7 +241,6 @@ function sendACK($type) {
         else {
             stream_socket_sendto($socket, $packet, 0, $peer);
         }
-        sleep(1);
     }
 }
 
