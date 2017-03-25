@@ -5,6 +5,8 @@ $date = date("[y/m/d G:i:s] ");
 
 $children = array();
 
+$gametime = array();
+
 $games = new SQLite3('games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
@@ -84,7 +86,7 @@ while(1) {
             $query->bindValue(':val', $ip, SQLITE3_TEXT);
             $numgames = $query->execute();            
             if($numgames->numColumns() > 20) {
-                echo $date . substr($peer, 0, strpos($peer, "/")) . " Already has the max number of games hosted. Skipping.\n";
+                echo $date . "Could not add game. " . substr($peer, 0, strpos($peer, "/")) . " Already has the max number of games hosted.\n";
                 break;
             }
 
@@ -118,6 +120,23 @@ while(1) {
                 if($result->numColumns() > 32765) {
                     echo $date . "Could not add game. Max number reached.\n";
                     break;
+                }
+                
+                // Remove any games that have been hosted longer than a second
+                $gametime = array_filter($gametime, "gameTime");
+                
+                print_r($gametime);
+                
+                $ip = substr($peer, 0, strpos($peer, "/"));
+                
+                // Check if this IP has hosted a game in the last second
+                if(array_key_exists($ip, $gametime)) {
+                    echo $date . "Could not add game. " . $ip . " tried to host too quickly.\n";
+                    break;
+                }
+                else {
+                    // Add this game's start time
+                    $gametime[$ip] = time();
                 }
 
                 while($id = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -268,6 +287,10 @@ function convertPeer($socket, $usable = false) {
     }
     
     return $result;
+}
+
+function gameTime($var) {
+    return((time() - $var) < 1);
 }
 
 ?>
