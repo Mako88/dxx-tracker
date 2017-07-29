@@ -125,8 +125,6 @@ while(1) {
                 // Remove any games that have been hosted longer than a second
                 $gametime = array_filter($gametime, "gameTime");
                 
-                print_r($gametime);
-                
                 $ip = substr($peer, 0, strpos($peer, "/"));
                 
                 // Check if this IP has hosted a game in the last second
