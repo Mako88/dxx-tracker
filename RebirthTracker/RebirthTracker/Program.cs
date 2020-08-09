@@ -34,7 +34,7 @@ namespace RebirthTracker
 
             while (true)
             {
-                Log("Waiting for packet...");
+                await Log("Waiting for packet...").ConfigureAwait(false);
 
                 try
                 {
@@ -66,7 +66,7 @@ namespace RebirthTracker
                 }
                 catch (Exception ex)
                 {
-                    Log(ex.Message);
+                    await Log(ex.Message).ConfigureAwait(false);
                     continue;
                 }
             }
@@ -77,7 +77,7 @@ namespace RebirthTracker
         /// </summary>
         private static async Task RegisterGame(byte[] packet, IPEndPoint peer)
         {
-            Log("Register Game");
+            await Log("Register Game").ConfigureAwait(false);
 
             IEnumerable<Game> alreadyHostedGames;
 
@@ -87,7 +87,7 @@ namespace RebirthTracker
 
                 if (await db.Games.CountAsync().ConfigureAwait(false) > 65534)
                 {
-                    Log("Not registering game - Too many games already hosted");
+                    await Log("Not registering game - Too many games already hosted").ConfigureAwait(false);
                     return;
                 }
 
@@ -95,7 +95,7 @@ namespace RebirthTracker
                     .Where(x => x.IPAddress?.Equals(peer.Address) ?? false);
             }
 
-            if (!CanHostGame(alreadyHostedGames))
+            if (!await CanHostGame(alreadyHostedGames).ConfigureAwait(false))
             {
                 return;
             }
@@ -116,11 +116,11 @@ namespace RebirthTracker
 
                 await game.Save().ConfigureAwait(false);
 
-                Log($"Game ID {game.ID} saved");
+                await Log($"Game ID {game.ID} saved").ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                await Log(ex.Message).ConfigureAwait(false);
 
                 // If an error occurred, don't send ACKs
                 return;
@@ -139,7 +139,7 @@ namespace RebirthTracker
         /// </summary>
         private static async Task UnregisterGame(IPEndPoint peer)
         {
-            Log("Unregister Game");
+            await Log("Unregister Game").ConfigureAwait(false);
 
             using (var db = new GameContext())
             {
@@ -154,7 +154,7 @@ namespace RebirthTracker
                 await db.SaveChangesAsync().ConfigureAwait(false);
             }
 
-            Log($"Removed games hosted by {peer.Address}:{peer.Port}");
+            await Log($"Removed games hosted by {peer.Address}:{peer.Port}").ConfigureAwait(false);
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace RebirthTracker
         /// </summary>
         private static async Task ListGames(IPEndPoint peer)
         {
-            Log("List Games");
+            await Log("List Games").ConfigureAwait(false);
 
             using (var db = new GameContext())
             {
@@ -180,7 +180,7 @@ namespace RebirthTracker
         /// </summary>
         private static async Task HolePunch(IPEndPoint peer, byte[] payload)
         {
-            Log("Hole Punch");
+            await Log("Hole Punch").ConfigureAwait(false);
 
             ushort gameID = payload[1];
 
@@ -207,19 +207,19 @@ namespace RebirthTracker
         /// <summary>
         /// Check if the peer is allowed to host a game
         /// </summary>
-        private static bool CanHostGame(IEnumerable<Game> alreadyHostedGames)
+        private static async Task<bool> CanHostGame(IEnumerable<Game> alreadyHostedGames)
         {
             // Limit 20 games per IP Address
             if (alreadyHostedGames.Count() > 20)
             {
-                Log("Not registering game - IP Address already has 20 games hosted");
+                await Log("Not registering game - IP Address already has 20 games hosted").ConfigureAwait(false);
                 return false;
             }
 
             // Don't allow a given IP to host more than 1 game per second
             if (alreadyHostedGames.Where(x => Math.Abs((x.LastUpdated - DateTime.Now).TotalSeconds) <= 1).Any())
             {
-                Log("Not registering game - IP Address hosted another one this second");
+                await Log("Not registering game - IP Address hosted another one this second").ConfigureAwait(false);
                 return false;
             }
 
@@ -233,7 +233,7 @@ namespace RebirthTracker
         {
             for (int i = 0; i < 5; i++)
             {
-                Log($"Sending ACK {i + 1} to {peer.Address}");
+                await Log($"Sending ACK {i + 1} to {peer.Address}").ConfigureAwait(false);
 
                 var internalPacket = new Packet(25, 0);
                 await internalPacket.Send(mainClient, peer).ConfigureAwait(false);
@@ -263,11 +263,17 @@ namespace RebirthTracker
         }
 
         /// <summary>
-        /// Write log with datetime stamp
+        /// Write log with Date-time stamp
         /// </summary>
-        private static void Log(string text)
+        private static async Task Log(string text)
         {
-            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.ffff") + $": {text}");
+            string logText = DateTime.Now.ToString("HH:mm:ss.ffff") + $": {text}";
+            Console.WriteLine(logText);
+
+            using (var writer = new StreamWriter($"{Configuration.GetDataDir()}log.txt", true))
+            {
+                await writer.WriteLineAsync(logText).ConfigureAwait(false);
+            }
         }
     }
 }
