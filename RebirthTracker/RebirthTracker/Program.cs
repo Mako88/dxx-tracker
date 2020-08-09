@@ -195,8 +195,8 @@ namespace RebirthTracker
 
             if (game != null)
             {
-                packet = new Packet(26, $"{game.IPAddress}/{game.Port}");
-                await packet.Send(mainClient, peer).ConfigureAwait(false);
+                packet = new Packet(26, $"{peer.Address}/{peer.Port}");
+                await packet.Send(mainClient, game.Endpoint).ConfigureAwait(false);
                 return;
             }
 
