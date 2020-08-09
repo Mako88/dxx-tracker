@@ -9,7 +9,7 @@ $result = $games->query("SELECT * FROM Games");
 while($game = $result->fetchArray(SQLITE3_ASSOC)) {
     preg_match("/D[1-2]X/", $game['Header'], $dxxVersion);
     
-    if( !(isset($_GET['d1x']) && $dxxVersion[0] == "D1X") || !(isset($_GET['d2x']) && $dxxVersion[0] == "D2X") ) {
+    if( (!isset($_GET['d1x']) && $dxxVersion[0] == "D1X") || (!isset($_GET['d2x']) && $dxxVersion[0] == "D2X") ) {
         continue;
     }
     
