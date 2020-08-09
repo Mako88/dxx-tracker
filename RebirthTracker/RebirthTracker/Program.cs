@@ -182,7 +182,9 @@ namespace RebirthTracker
         {
             await Log("Hole Punch").ConfigureAwait(false);
 
-            ushort gameID = payload[1];
+            ushort gameID = BitConverter.ToUInt16(payload, 1);
+
+            await Log($"Got Game ID {gameID}");
 
             Game game;
 
