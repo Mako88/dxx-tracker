@@ -124,3 +124,4 @@ RebirthTracker/RebirthTracker/obj/RebirthTracker.csproj.nuget.g.props
 RebirthTracker/RebirthTracker/obj/RebirthTracker.csproj.nuget.dgspec.json
 RebirthTracker/RebirthTracker/bin/Release/netcoreapp3.1/runtimes/win-arm/native/e_sqlite3.dll
 games.sqlite
+server.pid
