@@ -1,4 +1,6 @@
-﻿namespace RebirthTracker
+﻿using System.Runtime.InteropServices;
+
+namespace RebirthTracker
 {
     /// <summary>
     /// Class to keep track of OS-specific configuration settings
@@ -10,7 +12,13 @@
         /// </summary>
         public static string GetDataDir()
         {
-            return "..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "..\\..\\..\\..\\..\\";
+            }
+
+            return "../../../../../../";
         }
     }
 }
