@@ -33,6 +33,9 @@ namespace RebirthTracker.Migrations
                     b.Property<string>("Header")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("HostString")
+                        .HasColumnType("TEXT");
+
                     b.Property<byte[]>("IPAddressData")
                         .HasColumnType("BLOB");
 

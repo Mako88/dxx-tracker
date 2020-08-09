@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -23,6 +25,11 @@ namespace RebirthTracker
             using (var db = new GameContext())
             {
                 db.Database.Migrate();
+            }
+
+            using (var writer = new StreamWriter($"{Configuration.GetDataDir()}server.pid", false))
+            {
+                await writer.WriteAsync(Process.GetCurrentProcess().Id.ToString()).ConfigureAwait(false);
             }
 
             while (true)

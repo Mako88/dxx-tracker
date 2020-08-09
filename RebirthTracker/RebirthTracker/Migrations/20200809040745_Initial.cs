@@ -17,6 +17,7 @@ namespace RebirthTracker.Migrations
                     LastUpdated = table.Column<DateTime>(nullable: false),
                     Port = table.Column<int>(nullable: false),
                     IPAddressData = table.Column<byte[]>(nullable: true),
+                    HostString = table.Column<string>(nullable: true),
                     GameMode = table.Column<int>(nullable: false),
                     VersionString = table.Column<string>(nullable: true),
                     LevelNumber = table.Column<uint>(nullable: false),

@@ -88,6 +88,11 @@ namespace RebirthTracker
         private IPEndPoint endpoint;
 
         /// <summary>
+        /// The game host as a string
+        /// </summary>
+        public string HostString { get; set; }
+
+        /// <summary>
         /// The game mode of the game
         /// </summary>
         public GameMode GameMode { get; set; }
@@ -197,6 +202,8 @@ namespace RebirthTracker
 
             IPAddressData = peer.Address.GetAddressBytes();
             Port = peer.Port;
+            HostString = $"{Endpoint}";
+
             IsNew = false;
         }
 
