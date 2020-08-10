@@ -9,68 +9,55 @@ $result = $games->query("SELECT * FROM Games");
 while($game = $result->fetchArray(SQLITE3_ASSOC)) {
     preg_match("/D[1-2]X/", $game['Header'], $dxxVersion);
     
-    if( (!isset($_GET['d1x']) && $dxxVersion[0] == "D1X") || (!isset($_GET['d2x']) && $dxxVersion[0] == "D2X") ) {
+    if (($dxxVersion[0] == "D1X" && !isset($_GET['d1x'])) || ($dxxVersion[0] == "D2X" && !isset($_GET['d2x']))) {
         continue;
     }
-    
-    // Split the strings and set them to keys (favor Mission Title over Mission Name)
-    
+
     // Set the game mode to text
-    switch($game['GameMode']) {
+    switch ($game['GameMode']) {
         case 0:
             $gameMode = "Anarchy";
-        break;
-
+            break;
         case 1:
             $gameMode = "Team Anarchy";
-        break;
-
+            break;
         case 2:
             $gameMode = "Robo-Anarchy";
-        break;
-
+            break;
         case 3:
             $gameMode = "Cooperative";
-        break;
-
+            break;
         case 4:
             $gameMode = "Capture the Flag";
-        break;
-
+            break;
         case 5:
             $gameMode = "Hoard";
-        break;
-
+            break;
         case 6:
             $gameMode = "Team Hoard";
-        break;
-
+            break;
         case 7:
             $gameMode = "Bounty";
-        break; 
+            break; 
     }
     
     // Set the difficulty (this isn't currently used)
     /*switch($game['Difficulty']) {
         case 0:
             $difficulty = "Trainee";
-        break;
-
+            break;
         case 1:
             $difficulty = "Rookie";
-        break;
-
+            break;
         case 2:
             $difficulty = "Hotshot";
-        break;
-
+            break;
         case 3:
             $difficulty = "Ace";
-        break;
-
+            break;
         case 4:
             $difficulty = "Insane";
-        break;
+            break;
     }*/
     
     echo "

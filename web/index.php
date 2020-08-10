@@ -39,15 +39,17 @@
 </body>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let gameInterval;
     $(document).ready(function(){
         
         // Both games.php and backend.php work by calling them using the ajax .load() function
         // setInterval ensures that they are called again every 5 seconds
-        var check = "games.php?d1x=yes&d2x=yes";
+        let check = "games.php?d1x=yes&d2x=yes";
         $('#games').load(check);
-        window.interval = setInterval(function() { $('#games').load(check); }, 5000);
+        gameInterval = setInterval(function() { $('#games').load(check); }, 5000);
+        
         $('#backend').load('backend.php');
-        backendInterval = setInterval(function() { $('#backend').load('backend.php'); }, 5000);
+        setInterval(function() { $('#backend').load('backend.php'); }, 5000);
         
         // These change the GET parameters to only show certain games
         $("#all").click(function(){
@@ -68,9 +70,9 @@
     
     // This function resets the interval and starts a new one to prevent multiple starting.
     function refreshTable(check){
-        clearInterval(interval);
+        clearInterval(gameInterval);
         $('#games').load(check);
-        interval = setInterval(function() { $('#games').load(check); }, 5000);
+        gameInterval = setInterval(function() { $('#games').load(check); }, 5000);
     }
 </script>
 
