@@ -10,8 +10,6 @@ The tracker consists of 2 primary parts:
   2. `games.php` - A script to retrieve the list of games and display them
   3. `backend.php` - A script to check if the backend is actually running
 
-`client.php` is included as a test client/host when a Rebirth executable is not available.
-
 To use this tracker, you can set the ports in `Globals.cs` (default is 9999 for the primary port and 9998 for the external ack port), then build and run using Visual Studio or the `dotnet` commandline tool.
 
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
