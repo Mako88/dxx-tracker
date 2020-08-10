@@ -6,9 +6,9 @@ The tracker consists of 2 primary parts:
 1. The backend, which is written in C# and contained in the `RebirthTracker` directory
 
 2. The frontend. This is contained in the `web` directory and is made up of the following:
-  1. `index.php` - The primary webpage
-  2. `games.php` - A script to retrieve the list of games and display them
-  3. `backend.php` - A script to check if the backend is actually running
+  - `index.php` - The primary webpage
+  - `games.php` - A script to retrieve the list of games and display them
+  - `backend.php` - A script to check if the backend is actually running
 
 To use this tracker, you can set the ports in `Globals.cs` (default is 9999 for the primary port and 9998 for the external ack port), then build and run using Visual Studio or the `dotnet` commandline tool.
 
