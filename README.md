@@ -1,9 +1,9 @@
 # DXX-Rebirth Tracker
-This is a simple tracker for DXX-Rebirth written in PHP.
+This is a simple tracker for DXX-Rebirth written in .NET Core and PHP.
 
 The tracker consists of 2 primary parts:
 
-1. The backend, which is contained in the `server.php` file
+1. The backend, which is written in C# and contained in the `RebirthTracker` directory
 
 2. The frontend. This is contained in the `web` directory and is made up of the following:
   1. `index.php` - The primary webpage
@@ -12,7 +12,7 @@ The tracker consists of 2 primary parts:
 
 `client.php` is included as a test client/host when a Rebirth executable is not available.
 
-To use this tracker, you can set the port at the top of `server.php` (default is 9999), then run `php server.php` from the command line.
+To use this tracker, you can set the ports in `Globals.cs` (default is 9999 for the primary port and 9998 for the external ack port), then build and run using Visual Studio or the `dotnet` commandline tool.
 
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
