@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace RebirthTracker
 {
@@ -31,6 +32,12 @@ namespace RebirthTracker
             {
                 await writer.WriteAsync(Process.GetCurrentProcess().Id.ToString()).ConfigureAwait(false);
             }
+
+            var timer = new Timer(5000);
+
+            timer.Elapsed += new ElapsedEventHandler(ClearStaleGames);
+
+            GC.KeepAlive(timer);
 
             while (true)
             {
@@ -275,6 +282,19 @@ namespace RebirthTracker
             using (var writer = new StreamWriter($"{Configuration.GetDataDir()}log.txt", true))
             {
                 await writer.WriteLineAsync(logText).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Remove any stale games every tick of the timer
+        /// </summary>
+        private static async void ClearStaleGames(object sender, ElapsedEventArgs e)
+        {
+            await Log("Clearing stale games on timer").ConfigureAwait(false);
+
+            using (var db = new GameContext())
+            {
+                await db.ClearStaleGames(GameIDs).ConfigureAwait(false);
             }
         }
     }
