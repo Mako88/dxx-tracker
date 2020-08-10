@@ -30,7 +30,7 @@ namespace RebirthTracker.PacketHandlers
 
             ushort gameID = BitConverter.ToUInt16(result.Buffer, 1);
 
-            await Logger.Log($"Got Game ID {gameID}");
+            await Logger.Log($"Got Game ID {gameID}").ConfigureAwait(false);
 
             Game game;
 
@@ -43,11 +43,13 @@ namespace RebirthTracker.PacketHandlers
 
             if (game != null)
             {
+                await Logger.Log("Sending hole punch packet").ConfigureAwait(false);
                 packet = new Packet(26, $"{peer.Address}/{peer.Port}");
                 await packet.Send(Globals.MainClient, game.Endpoint).ConfigureAwait(false);
                 return;
             }
 
+            await Logger.Log("Couldn't fetch game").ConfigureAwait(false);
             packet = new Packet(27, gameID);
             await packet.Send(Globals.MainClient, peer).ConfigureAwait(false);
         }
