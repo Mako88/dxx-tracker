@@ -12,14 +12,6 @@ namespace RebirthTracker
     {
         private readonly List<byte> Payload;
 
-        public Packet(byte opcode)
-        {
-            Payload = new List<byte>
-            {
-                opcode,
-            };
-        }
-
         public Packet(byte opcode, string payload)
         {
             Payload = new List<byte>

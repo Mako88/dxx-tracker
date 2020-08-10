@@ -95,7 +95,7 @@ namespace RebirthTracker.PacketHandlers
         /// <summary>
         /// Check if the peer is allowed to host a game
         /// </summary>
-        private static async Task<bool> CanHostGame(IEnumerable<Game> alreadyHostedGames)
+        private async Task<bool> CanHostGame(IEnumerable<Game> alreadyHostedGames)
         {
             // Limit 20 games per IP Address
             if (alreadyHostedGames.Count() > 20)
@@ -141,7 +141,7 @@ namespace RebirthTracker.PacketHandlers
         /// <summary>
         /// Create a GameID that doesn't already exist
         /// </summary>
-        private static ushort GenerateID()
+        private ushort GenerateID()
         {
             IEnumerable<int> range = Enumerable.Range(1, 65535).Where(x => !Globals.GameIDs.Contains(x));
 
