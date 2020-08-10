@@ -6,7 +6,7 @@ The tracker consists of 2 primary parts:
 1. The backend, which is written in C# and contained in the `RebirthTracker` directory
 
 2. The frontend. This is contained in the `web` directory and is made up of the following:
-    - `index.php` - The primary webpage
+    - `index.html` - The primary webpage
     - `games.php` - A script to retrieve the list of games and display them
     - `backend.php` - A script to check if the backend is actually running
 
