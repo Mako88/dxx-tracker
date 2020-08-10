@@ -35,6 +35,8 @@ namespace RebirthTracker
 
             var timer = new Timer(5000);
 
+            timer.Enabled = true;
+
             timer.Elapsed += new ElapsedEventHandler(ClearStaleGames);
 
             GC.KeepAlive(timer);
