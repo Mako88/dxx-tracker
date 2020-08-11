@@ -74,6 +74,8 @@ namespace RebirthTracker.PacketHandlers
             await Logger.Log($"Sending hole punch packet {holePunchCount + 1} to {game.Endpoint}").ConfigureAwait(false);
             var packet = new Packet(26, $"{peer.Address}/{peer.Port}");
             await packet.Send(Globals.MainClient, game.Endpoint).ConfigureAwait(false);
+
+            holePunchCount++;
         }
     }
 }

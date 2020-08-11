@@ -37,7 +37,7 @@ namespace RebirthTracker.PacketHandlers
             peer = result.RemoteEndPoint;
             var packet = result.Buffer;
 
-            await Logger.Log("Register Game").ConfigureAwait(false);
+            await Logger.Log("Register/Update Game").ConfigureAwait(false);
 
             IEnumerable<Game> alreadyHostedGames;
 
@@ -67,10 +67,12 @@ namespace RebirthTracker.PacketHandlers
             {
                 if (game == null)
                 {
+                    await Logger.Log("Creating new game").ConfigureAwait(false);
                     game = new Game(GenerateID(), packet, peer);
                 }
                 else
                 {
+                    await Logger.Log("Updating existing game").ConfigureAwait(false);
                     game.Update(packet, peer);
                 }
 
