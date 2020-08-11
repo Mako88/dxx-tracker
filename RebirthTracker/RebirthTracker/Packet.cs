@@ -18,7 +18,7 @@ namespace RebirthTracker
             {
                 opcode,
             };
-            Payload.AddRange(Encoding.ASCII.GetBytes(payload));
+            Payload.AddRange(Encoding.UTF8.GetBytes(payload));
         }
 
         public Packet(byte opcode, byte payload)
