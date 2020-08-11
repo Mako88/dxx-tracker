@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace RebirthTracker.PacketHandlers
 {
@@ -12,11 +14,19 @@ namespace RebirthTracker.PacketHandlers
     [Opcode(26)]
     public class HolePunchPacketHandler : IPacketHandler
     {
+        private readonly Timer timer;
+        private int holePunchCount;
+        private IPEndPoint peer;
+        private Game game;
+
         /// <summary>
         /// Constructor called through reflection in PacketHandlerFactory
         /// </summary>
         public HolePunchPacketHandler()
         {
+            timer = new Timer(1000);
+            timer.Elapsed += SendHolePunch;
+            holePunchCount = 0;
         }
 
         /// <summary>
@@ -24,7 +34,7 @@ namespace RebirthTracker.PacketHandlers
         /// </summary>
         public async Task Handle(UdpReceiveResult result)
         {
-            var peer = result.RemoteEndPoint;
+            peer = result.RemoteEndPoint;
 
             await Logger.Log("Hole Punch").ConfigureAwait(false);
 
@@ -32,26 +42,38 @@ namespace RebirthTracker.PacketHandlers
 
             await Logger.Log($"Got Game ID {gameID}").ConfigureAwait(false);
 
-            Game game;
-
             using (var db = new GameContext())
             {
                 game = (await db.Games.Where(x => x.ID == gameID).ToListAsync().ConfigureAwait(false)).FirstOrDefault();
             }
 
-            Packet packet;
-
             if (game != null)
             {
-                await Logger.Log("Sending hole punch packet").ConfigureAwait(false);
-                packet = new Packet(26, $"{peer.Address}/{peer.Port}");
-                await packet.Send(Globals.MainClient, game.Endpoint).ConfigureAwait(false);
+                timer.Enabled = true;
                 return;
             }
 
             await Logger.Log("Couldn't fetch game").ConfigureAwait(false);
-            packet = new Packet(27, gameID);
+            Packet packet = new Packet(27, gameID);
             await packet.Send(Globals.MainClient, peer).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Send a hole punch packet
+        /// </summary>
+        private async void SendHolePunch(Object source, ElapsedEventArgs e)
+        {
+            if (holePunchCount >= 5)
+            {
+                timer.Stop();
+                timer.Elapsed -= SendHolePunch;
+                timer.Dispose();
+                return;
+            }
+
+            await Logger.Log($"Sending hole punch packet {holePunchCount + 1} to {game.Endpoint}").ConfigureAwait(false);
+            var packet = new Packet(26, $"{peer.Address}/{peer.Port}");
+            await packet.Send(Globals.MainClient, game.Endpoint).ConfigureAwait(false);
         }
     }
 }

@@ -66,7 +66,7 @@ while($game = $result->fetchArray(SQLITE3_ASSOC)) {
     <tr>
         <td>" . $dxxVersion[0] . " " . $game['VersionString'] . "</td>
         <td>" . $game['Name'] . "</td>
-        <td><a target=\"_blank\" href=\"https://enspiar.com/dmdb/index.php?keywords=" . urlencode($mission) . "&searchBox=" . urlencode($mission) . "\">" . $mission . "</a></td>
+        <td><a target=\"_blank\" style=\"color: #767cc9\" href=\"https://enspiar.com/dmdb/index.php?keywords=" . urlencode($mission) . "&searchBox=" . urlencode($mission) . "\">" . $mission . "</a></td>
         <td>" . $game['NumConnected'] . "/" . $game['MaxPlayers'] . "</td>
         <td>" . $gameMode . "</td>
         <td>" . $game['Status'] . "</td>
