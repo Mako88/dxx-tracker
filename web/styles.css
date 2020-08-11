@@ -79,12 +79,6 @@ table {
     width: 17%;
 }
 
-
-table tbody tr:hover {
-    cursor: pointer;
-    color: #767cc9;
-}
-
 table td,
 table th {
     text-align: left;

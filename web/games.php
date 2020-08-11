@@ -59,12 +59,14 @@ while($game = $result->fetchArray(SQLITE3_ASSOC)) {
             $difficulty = "Insane";
             break;
     }*/
+
+    $mission = trim($game['MissionTitle']) == "" ? $game['MissionName'] : $game['MissionTitle'];
     
     echo "
     <tr>
         <td>" . $dxxVersion[0] . " " . $game['VersionString'] . "</td>
         <td>" . $game['Name'] . "</td>
-        <td>" . ((trim($game['MissionTitle']) == "") ? $game['MissionName'] : $game['MissionTitle']) . "</td>
+        <td><a href=\"https://enspiar.com/dmdb/index.php?keywords=" . urlencode($mission) . "&searchBox=" . urlencode($mission) . "\">" . $mission . "</a></td>
         <td>" . $game['NumConnected'] . "/" . $game['MaxPlayers'] . "</td>
         <td>" . $gameMode . "</td>
         <td>" . $game['Status'] . "</td>
