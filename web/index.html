@@ -53,20 +53,28 @@
         
         // These change the GET parameters to only show certain games
         $("#all").click(function(){
+            SetActive($(this));
             check = "games.php?d1x=yes&d2x=yes";
             refreshTable(check);
         });
         
-        $("#d1x").click(function(){
+        $("#d1x").click(function() {
+            SetActive($(this));
             check = "games.php?d1x=yes";
             refreshTable(check);
         });
         
         $("#d2x").click(function(){
+            SetActive($(this));
             check = "games.php?d2x=yes";
             refreshTable(check);
         });
     });
+
+    function SetActive(clicked) {
+        $(".buttons").children("a").not(clicked).css("color", "#bcbcbc");
+        clicked.css("color", "#767cc9");
+    }
     
     // This function resets the interval and starts a new one to prevent multiple starting.
     function refreshTable(check){

@@ -64,8 +64,6 @@ namespace RebirthTracker
         /// </summary>
         private static async void ClearStaleGames(object sender, ElapsedEventArgs e)
         {
-            await Logger.Log("Clearing stale games on timer").ConfigureAwait(false);
-
             using (var db = new GameContext())
             {
                 await db.ClearStaleGames().ConfigureAwait(false);
