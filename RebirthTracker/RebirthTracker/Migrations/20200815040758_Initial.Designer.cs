@@ -9,7 +9,7 @@ using RebirthTracker;
 namespace RebirthTracker.Migrations
 {
     [DbContext(typeof(GameContext))]
-    [Migration("20200809040745_Initial")]
+    [Migration("20200815040758_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,9 @@ namespace RebirthTracker.Migrations
 
                     b.Property<byte[]>("Blob")
                         .HasColumnType("BLOB");
+
+                    b.Property<int>("DescentVersion")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Difficulty")
                         .HasColumnType("INTEGER");

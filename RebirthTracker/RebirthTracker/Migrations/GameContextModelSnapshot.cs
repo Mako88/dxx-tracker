@@ -24,6 +24,9 @@ namespace RebirthTracker.Migrations
                     b.Property<byte[]>("Blob")
                         .HasColumnType("BLOB");
 
+                    b.Property<int>("DescentVersion")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Difficulty")
                         .HasColumnType("INTEGER");
 

@@ -27,7 +27,8 @@ namespace RebirthTracker.Migrations
                     MaxPlayers = table.Column<byte>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     MissionTitle = table.Column<string>(nullable: true),
-                    MissionName = table.Column<string>(nullable: true)
+                    MissionName = table.Column<string>(nullable: true),
+                    DescentVersion = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

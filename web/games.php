@@ -4,15 +4,22 @@
 $games = new SQLite3('../games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
-$result = $games->query("SELECT * FROM Games");
+$queryString = "SELECT * FROM Games";
+
+if (isset($_GET['version'])) {
+    switch($_GET['version']) {
+        case "d1x":
+            $queryString = "SELECT * FROM Games WHERE DescentVersion = 1";
+            break;
+        case "d2x":
+            $queryString = "SELECT * FROM Games WHERE DescentVersion = 2";
+            break;
+    }
+}
+
+$result = $games->query($queryString);
 
 while($game = $result->fetchArray(SQLITE3_ASSOC)) {
-    preg_match("/D[1-2]X/", $game['Header'], $dxxVersion);
-    
-    if (($dxxVersion[0] == "D1X" && !isset($_GET['d1x'])) || ($dxxVersion[0] == "D2X" && !isset($_GET['d2x']))) {
-        continue;
-    }
-
     // Set the game mode to text
     switch ($game['GameMode']) {
         case 0:
@@ -61,20 +68,23 @@ while($game = $result->fetchArray(SQLITE3_ASSOC)) {
     }*/
 
     $mission = trim($game['MissionTitle']) == "" ? $game['MissionName'] : $game['MissionTitle'];
-    
-    echo "
-    <tr>
-        <td>" . $dxxVersion[0] . " " . $game['VersionString'] . "</td>
-        <td>" . $game['Name'] . "</td>
-        <td><a target=\"_blank\" style=\"color: #767cc9\" href=\"https://enspiar.com/dmdb/index.php?keywords=" . urlencode($mission) . "&searchBox=" . urlencode($mission) . "\">" . $mission . "</a></td>
-        <td>" . $game['NumConnected'] . "/" . $game['MaxPlayers'] . "</td>
-        <td>" . $gameMode . "</td>
-        <td>" . $game['Status'] . "</td>
-        <td>" . $game['HostString'] . "</td>
-    </tr>
-    ";
-    
-}
+    $missionLink = "https://enspiar.com/dmdb/index.php?keywords=" . urlencode($mission) . "&searchBox=" . urlencode($mission);
+?>
+
+<tr>
+    <td><?php echo $game['VersionString']; ?></td>
+    <td><?php echo $game['Name']; ?></td>
+    <td><a target="_blank" style="color: #767cc9" href="<?php echo $missionLink; ?>"><?php echo $mission; ?></a></td>
+    <td><?php echo $game['NumConnected']; ?>/<?php echo $game['MaxPlayers']; ?></td>
+    <td><?php echo $gameMode; ?></td>
+    <td><?php echo $game['Status']; ?></td>
+    <td><?php echo $game['HostString']; ?></td>
+</tr>
+
+<?php
+} // while
+
 $games->close();
 unset($games);
+
 ?>

@@ -44,43 +44,32 @@
         
         // Both games.php and backend.php work by calling them using the ajax .load() function
         // setInterval ensures that they are called again every 5 seconds
-        let check = "games.php?d1x=yes&d2x=yes";
-        $('#games').load(check);
-        gameInterval = setInterval(function() { $('#games').load(check); }, 5000);
+        let query = "games.php?version=all";
+        $('#games').load(query);
+        gameInterval = setInterval(function() { $('#games').load(query); }, 5000);
         
         $('#backend').load('backend.php');
         setInterval(function() { $('#backend').load('backend.php'); }, 5000);
         
-        // These change the GET parameters to only show certain games
-        $("#all").click(function(){
+        // This change the GET parameter to filter games
+        $(".buttons a").click(function(){
             SetActive($(this));
-            check = "games.php?d1x=yes&d2x=yes";
-            refreshTable(check);
-        });
-        
-        $("#d1x").click(function() {
-            SetActive($(this));
-            check = "games.php?d1x=yes";
-            refreshTable(check);
-        });
-        
-        $("#d2x").click(function(){
-            SetActive($(this));
-            check = "games.php?d2x=yes";
-            refreshTable(check);
+            query = "games.php?version=" + $(this).attr('id');
+            refreshTable(query);
         });
     });
 
+    // Set one of the filter buttons to active
     function SetActive(clicked) {
         $(".buttons").children("a").not(clicked).css("color", "#bcbcbc");
         clicked.css("color", "#767cc9");
     }
     
-    // This function resets the interval and starts a new one to prevent multiple starting.
-    function refreshTable(check){
+    // Reload the games list
+    function refreshTable(query){
         clearInterval(gameInterval);
-        $('#games').load(check);
-        gameInterval = setInterval(function() { $('#games').load(check); }, 5000);
+        $('#games').load(query);
+        gameInterval = setInterval(function() { $('#games').load(query); }, 5000);
     }
 </script>
 

@@ -103,23 +103,6 @@ namespace RebirthTracker
         public string VersionString { get; set; }
 
         /// <summary>
-        /// The version of Rebirth the game is hosted on
-        /// </summary>
-        [NotMapped]
-        public Version Version
-        {
-            get
-            {
-                if (version == null && !string.IsNullOrWhiteSpace(VersionString))
-                {
-                    version = new Version(VersionString);
-                }
-                return version;
-            }
-        }
-        private Version version;
-
-        /// <summary>
         /// The level number of the hosted game
         /// </summary>
         public uint LevelNumber { get; set; }
@@ -160,6 +143,11 @@ namespace RebirthTracker
         public string MissionName { get; set; }
 
         /// <summary>
+        /// Which version of Descent the game is hosted in
+        /// </summary>
+        public int DescentVersion { get; set; }
+
+        /// <summary>
         /// Empty constructor is necessary for Entity Framework
         /// </summary>
         public Game()
@@ -189,6 +177,8 @@ namespace RebirthTracker
 
             Header = rawString.Substring(from, to - from);
 
+            VersionString = Header.Replace('R', ' ');
+
             Blob = packet.Skip(to + 3).ToArray();
 
             if (!Blob.Any())
@@ -204,6 +194,8 @@ namespace RebirthTracker
             Port = peer.Port;
             HostString = $"{Endpoint}";
 
+            DescentVersion = Header.ToLowerInvariant().IndexOf("d1x") == -1 ? 2 : 1;
+
             IsNew = false;
         }
 
@@ -214,11 +206,9 @@ namespace RebirthTracker
         {
             // 0 - UPID 
 
-            // Version
-            ushort major = BitConverter.ToUInt16(Blob, 1); // 1-2
-            ushort minor = BitConverter.ToUInt16(Blob, 3); // 3-4
-            ushort micro = BitConverter.ToUInt16(Blob, 5); // 5-6
-            VersionString = $"{major}.{minor}.{micro}";
+            // 1-2 - Major Version
+            // 3-4 - Minor Version
+            // 5-6 - Micro Version
 
             // 7-10 - GameID
 
