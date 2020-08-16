@@ -19,9 +19,9 @@ if (isset($_GET['version'])) {
     }
 }
 
-$queryString .= isset($_GET['archive']) ? "true" : "false";
+$queryString .= isset($_GET['archive']) ? "1" : "0";
 
-$queryString .= " ORDER BY InternalID LIMIT 10";
+$queryString .= " ORDER BY InternalID desc LIMIT 10";
 
 $result = $games->query($queryString);
 
