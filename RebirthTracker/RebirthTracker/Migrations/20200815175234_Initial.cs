@@ -11,7 +11,9 @@ namespace RebirthTracker.Migrations
                 name: "Games",
                 columns: table => new
                 {
-                    ID = table.Column<ushort>(nullable: false),
+                    InternalID = table.Column<long>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    GameID = table.Column<ushort>(nullable: false),
                     Header = table.Column<string>(nullable: true),
                     Blob = table.Column<byte[]>(nullable: true),
                     LastUpdated = table.Column<DateTime>(nullable: false),
@@ -28,11 +30,12 @@ namespace RebirthTracker.Migrations
                     Name = table.Column<string>(nullable: true),
                     MissionTitle = table.Column<string>(nullable: true),
                     MissionName = table.Column<string>(nullable: true),
-                    DescentVersion = table.Column<int>(nullable: false)
+                    DescentVersion = table.Column<int>(nullable: false),
+                    Archived = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Games", x => x.ID);
+                    table.PrimaryKey("PK_Games", x => x.InternalID);
                 });
         }
 

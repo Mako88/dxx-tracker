@@ -34,6 +34,9 @@ body {
     min-height: 100vh;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
 }
 
 h1 {
@@ -41,42 +44,26 @@ h1 {
     font-family: Logo, sans-serif;
     color: #ff0000;
     font-size: 50px;
+    width: 100%;
+}
+
+h2 {
+    font-family: Logo, sans-serif;
+    color: #ffba00;
+    font-size: 30px;
+    text-align: center;
+}
+
+.gamelist {
+    flex: 50%;
+    min-width: 500px;
 }
 
 table {
-    table-layout: fixed;
     width: 100%;
     white-space: nowrap;
     margin-bottom: 25px;
     border-collapse: collapse;
-}
-
-.version {
-    width: 12%;
-}
-
-.name {
-    width: 15%;
-}
-
-.mission {
-    width: 20%;
-}
-
-.players {
-    width: 13%;
-}
-
-.mode {
-    width: 12%;
-}
-
-.status {
-    width: 13%;
-}
-
-.host {
-    width: 17%;
 }
 
 table td,
@@ -98,9 +85,9 @@ table td {
     padding: 5px 10px;
 }
 
-/*table tr:nth-child(odd) {
-    background: lightblue;
-}*/
+.hidden {
+    display: none;
+}
 
 .up {
     color: #ffba00;
@@ -114,6 +101,10 @@ table td {
     text-align: center;
 }
 
+.buttons span {
+    padding: 0 15px;
+}
+
 a, a:link, a:visited {
     color: #bcbcbc;
     text-decoration: none;
@@ -121,6 +112,10 @@ a, a:link, a:visited {
 
 a:hover, a:active {
     color: #767cc9 !important;
+}
+
+.left {
+    margin-left: 50px;
 }
 
 #footer {

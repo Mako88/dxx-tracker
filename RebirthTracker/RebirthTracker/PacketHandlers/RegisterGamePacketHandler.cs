@@ -52,7 +52,7 @@ namespace RebirthTracker.PacketHandlers
                 }
 
                 alreadyHostedGames = (await db.Games.ToListAsync().ConfigureAwait(false))
-                    .Where(x => x.IPAddress?.Equals(peer.Address) ?? false);
+                    .Where(x => (x.IPAddress?.Equals(peer.Address) ?? false) && x.Archived == false);
             }
 
             if (!await CanHostGame(alreadyHostedGames).ConfigureAwait(false))
@@ -61,7 +61,7 @@ namespace RebirthTracker.PacketHandlers
             }
 
             // See if this game already exists and should be updated or if it should be created new
-            var game = alreadyHostedGames.Where(x => x.Port == peer.Port).FirstOrDefault();
+            var game = alreadyHostedGames.Where(x => x.Port == peer.Port && x.Archived == false).FirstOrDefault();
 
             try
             {
@@ -78,7 +78,7 @@ namespace RebirthTracker.PacketHandlers
 
                 await game.Save().ConfigureAwait(false);
 
-                await Logger.Log($"Game ID {game.ID} saved").ConfigureAwait(false);
+                await Logger.Log($"Game ID {game.GameID} saved").ConfigureAwait(false);
             }
             catch (Exception ex)
             {

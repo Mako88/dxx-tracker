@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -28,15 +29,25 @@ namespace RebirthTracker.PacketHandlers
 
             using (var db = new GameContext())
             {
-                var games = db.Games.AsEnumerable().Where(x => x.Endpoint?.Equals(peer) ?? false);
+                try
+                {
+                    var games = db.Games.AsEnumerable().Where(x => (x.Endpoint?.Equals(peer) ?? false) && x.Archived == false);
 
-                var IDs = games.Select(x => x.ID);
+                    var IDs = games.Select(x => x.GameID);
 
-                Globals.GameIDs.RemoveWhere(id => IDs.Contains((ushort) id));
+                    Globals.GameIDs.RemoveWhere(id => IDs.Contains((ushort) id));
 
-                db.RemoveRange(games);
+                    foreach (Game game in games)
+                    {
+                        game.Archived = true;
+                    }
 
-                await db.SaveChangesAsync().ConfigureAwait(false);
+                    await db.SaveChangesAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    await Logger.Log(ex.Message).ConfigureAwait(false);
+                }
             }
 
             await Logger.Log($"Removed games hosted by {peer.Address}:{peer.Port}").ConfigureAwait(false);

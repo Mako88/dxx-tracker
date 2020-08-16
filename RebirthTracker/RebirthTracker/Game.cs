@@ -16,11 +16,15 @@ namespace RebirthTracker
     public class Game
     {
         /// <summary>
-        /// The game's ID
+        /// An internal ID
         /// </summary>
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public ushort ID { get; set; }
+        public long InternalID { get; set; }
+
+        /// <summary>
+        /// The game's ID
+        /// </summary>
+        public ushort GameID { get; set; }
 
         /// <summary>
         /// The game's header string
@@ -148,6 +152,11 @@ namespace RebirthTracker
         public int DescentVersion { get; set; }
 
         /// <summary>
+        /// Whether or not the game has been archived
+        /// </summary>
+        public bool Archived { get; set; }
+
+        /// <summary>
         /// Empty constructor is necessary for Entity Framework
         /// </summary>
         public Game()
@@ -160,9 +169,10 @@ namespace RebirthTracker
         /// </summary>
         public Game(ushort gameID, byte[] packet, IPEndPoint peer)
         {
-            ID = gameID;
+            GameID = gameID;
             Update(packet, peer);
             IsNew = true;
+            Archived = false;
         }
 
         /// <summary>
@@ -297,7 +307,7 @@ namespace RebirthTracker
         {
             var packet = new Packet(24, $"a={IPAddress}/{Port},c=");
 
-            packet.Append(ID);
+            packet.Append(GameID);
             packet.Append(",z=");
             packet.Append(Blob);
 

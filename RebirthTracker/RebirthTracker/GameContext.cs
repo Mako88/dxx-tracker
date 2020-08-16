@@ -21,14 +21,25 @@ namespace RebirthTracker
         /// </summary>
         public async Task ClearStaleGames()
         {
-            var staleGames = Games.Where(x => x.LastUpdated.AddSeconds(30) < DateTime.Now);
+            try
+            {
+                var staleGames = Games.Where(x => x.LastUpdated.AddSeconds(30) < DateTime.Now && x.Archived == false);
 
-            var staleIDs = await staleGames.Select(x => x.ID).ToListAsync().ConfigureAwait(false);
+                var staleIDs = await staleGames.Select(x => x.GameID).ToListAsync().ConfigureAwait(false);
 
-            Globals.GameIDs.RemoveWhere(id => staleIDs.Contains((ushort) id));
+                Globals.GameIDs.RemoveWhere(id => staleIDs.Contains((ushort) id));
 
-            RemoveRange(staleGames);
-            await SaveChangesAsync().ConfigureAwait(false);
+                foreach (Game game in staleGames)
+                {
+                    game.Archived = true;
+                }
+
+                await SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await Logger.Log(ex.Message).ConfigureAwait(false);
+            }
         }
     }
 }

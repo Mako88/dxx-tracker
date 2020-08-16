@@ -4,18 +4,24 @@
 $games = new SQLite3('../games.sqlite') or die('Unable to open database');
 $games->busyTimeout(30000);
 
-$queryString = "SELECT * FROM Games";
+$count = isset($_GET['page']) ? 10 * intval($_GET['page']) : 0;
+
+$queryString = "SELECT * FROM Games WHERE InternalID > $count AND Archived = ";
 
 if (isset($_GET['version'])) {
     switch($_GET['version']) {
         case "d1x":
-            $queryString = "SELECT * FROM Games WHERE DescentVersion = 1";
+            $queryString = "SELECT * FROM Games WHERE InternalID > $count AND DescentVersion = 1 AND Archived = ";
             break;
         case "d2x":
-            $queryString = "SELECT * FROM Games WHERE DescentVersion = 2";
+            $queryString = "SELECT * FROM Games WHERE InternalID > $count AND DescentVersion = 2 AND Archived = ";
             break;
     }
 }
+
+$queryString .= isset($_GET['archive']) ? "true" : "false";
+
+$queryString .= " ORDER BY InternalID LIMIT 10";
 
 $result = $games->query($queryString);
 
@@ -69,16 +75,21 @@ while($game = $result->fetchArray(SQLITE3_ASSOC)) {
 
     $mission = trim($game['MissionTitle']) == "" ? $game['MissionName'] : $game['MissionTitle'];
     $missionLink = "https://enspiar.com/dmdb/index.php?keywords=" . urlencode($mission) . "&searchBox=" . urlencode($mission);
+    $date = new DateTime($game['LastUpdated'])
 ?>
 
 <tr>
     <td><?php echo $game['VersionString']; ?></td>
-    <td><?php echo $game['Name']; ?></td>
+    <td><a href="#" class="gamelink" data-gameid="#game-<?php echo $game['InternalID']; ?>" style="color: #767cc9"><?php echo $game['Name']; ?></a></td>
     <td><a target="_blank" style="color: #767cc9" href="<?php echo $missionLink; ?>"><?php echo $mission; ?></a></td>
-    <td><?php echo $game['NumConnected']; ?>/<?php echo $game['MaxPlayers']; ?></td>
-    <td><?php echo $gameMode; ?></td>
-    <td><?php echo $game['Status']; ?></td>
-    <td><?php echo $game['HostString']; ?></td>
+    <td><?php echo $date->format("m/d/y H:i:s"); ?></td>
+</tr>
+
+<tr class="hidden" id="game-<?php echo $game['InternalID']; ?>">
+    <td>Players: <?php echo $game['NumConnected']; ?>/<?php echo $game['MaxPlayers']; ?></td>
+    <td>Game Mode: <?php echo $gameMode; ?></td>
+    <td>Status: <?php echo $game['Status']; ?></td>
+    <td>Host: <?php echo $game['HostString']; ?></td>
 </tr>
 
 <?php

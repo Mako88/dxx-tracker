@@ -36,7 +36,7 @@ namespace RebirthTracker.PacketHandlers
 
             using (var db = new GameContext())
             {
-                game = (await db.Games.Where(x => x.ID == gameID).ToListAsync().ConfigureAwait(false)).FirstOrDefault();
+                game = (await db.Games.Where(x => x.GameID == gameID && x.Archived == false).ToListAsync().ConfigureAwait(false)).FirstOrDefault();
             }
 
             Packet packet;

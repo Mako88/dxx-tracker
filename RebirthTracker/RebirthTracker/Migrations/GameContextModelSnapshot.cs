@@ -18,7 +18,11 @@ namespace RebirthTracker.Migrations
 
             modelBuilder.Entity("RebirthTracker.Game", b =>
                 {
-                    b.Property<ushort>("ID")
+                    b.Property<long>("InternalID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Archived")
                         .HasColumnType("INTEGER");
 
                     b.Property<byte[]>("Blob")
@@ -28,6 +32,9 @@ namespace RebirthTracker.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Difficulty")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<ushort>("GameID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("GameMode")
@@ -72,7 +79,7 @@ namespace RebirthTracker.Migrations
                     b.Property<string>("VersionString")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
+                    b.HasKey("InternalID");
 
                     b.ToTable("Games");
                 });
