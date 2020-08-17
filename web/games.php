@@ -6,22 +6,22 @@ $games->busyTimeout(30000);
 
 $count = isset($_GET['page']) ? 10 * intval($_GET['page']) : 0;
 
-$queryString = "SELECT * FROM Games WHERE InternalID < (SELECT MAX(InternalID) FROM Games) - $count AND Archived = ";
+$queryString = "SELECT * FROM Games WHERE Archived = ";
 
 if (isset($_GET['version'])) {
     switch($_GET['version']) {
         case "d1x":
-            $queryString = "SELECT * FROM Games WHERE InternalID < (SELECT MAX(InternalID) FROM Games) - $count AND DescentVersion = 1 AND Archived = ";
+            $queryString = "SELECT * FROM Games WHERE DescentVersion = 1 AND Archived = ";
             break;
         case "d2x":
-            $queryString = "SELECT * FROM Games WHERE InternalID < (SELECT MAX(InternalID) FROM Games) - $count AND DescentVersion = 2 AND Archived = ";
+            $queryString = "SELECT * FROM Games WHERE DescentVersion = 2 AND Archived = ";
             break;
     }
 }
 
 $queryString .= isset($_GET['archive']) ? "1" : "0";
 
-$queryString .= " ORDER BY InternalID DESC LIMIT 10";
+$queryString .= " ORDER BY InternalID DESC LIMIT 10 OFFSET $count";
 
 $result = $games->query($queryString);
 
