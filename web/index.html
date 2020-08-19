@@ -159,13 +159,13 @@
     // Refresh the live games list
     function RefreshGames() {
         $('#games').load(CreateQueryString(gameQuery), ShowDetails);
-        $('p[data-list="live"] span').text(gameQuery.page);
+        $('p[data-list="live"] span').text(gameQuery.page + 1);
     }
 
     // Refresh the archive
     function RefreshArchive() {
         $('#archive').load(CreateQueryString(archiveQuery), ShowDetails);
-        $('p[data-list="archive"] span').text(archiveQuery.page);
+        $('p[data-list="archive"] span').text(archiveQuery.page + 1);
     }
 
     // Show any details that were previously toggled visible
