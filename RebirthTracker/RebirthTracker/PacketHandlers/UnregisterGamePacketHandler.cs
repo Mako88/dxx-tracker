@@ -31,7 +31,7 @@ namespace RebirthTracker.PacketHandlers
             {
                 try
                 {
-                    var games = db.Games.AsEnumerable().Where(x => (x.Endpoint?.Equals(peer) ?? false) && x.Archived == false);
+                    var games = db.Games.AsEnumerable().Where(x => (x.Endpoint?.Equals(peer) ?? false) && !x.Archived);
 
                     var IDs = games.Select(x => x.GameID);
 

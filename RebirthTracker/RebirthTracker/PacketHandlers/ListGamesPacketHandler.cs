@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Linq;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace RebirthTracker.PacketHandlers
@@ -29,7 +30,7 @@ namespace RebirthTracker.PacketHandlers
             {
                 await db.ClearStaleGames().ConfigureAwait(false);
 
-                foreach (var game in db.Games)
+                foreach (var game in db.Games.Where(x => !x.Archived))
                 {
                     await game.SendGame(Globals.MainClient, peer).ConfigureAwait(false);
                 }

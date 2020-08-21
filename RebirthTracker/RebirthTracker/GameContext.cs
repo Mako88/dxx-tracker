@@ -23,7 +23,7 @@ namespace RebirthTracker
         {
             try
             {
-                var staleGames = Games.Where(x => x.LastUpdated.AddSeconds(30) < DateTime.Now && x.Archived == false);
+                var staleGames = Games.Where(x => x.LastUpdated.AddSeconds(30) < DateTime.Now && !x.Archived);
 
                 var staleIDs = await staleGames.Select(x => x.GameID).ToListAsync().ConfigureAwait(false);
 
