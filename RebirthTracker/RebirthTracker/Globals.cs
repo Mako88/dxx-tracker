@@ -24,7 +24,7 @@ namespace RebirthTracker
                 return "..\\..\\..\\..\\..\\";
             }
 
-            return "/var/www/";
+            return "/var/www/tracker/";
         }
     }
 }
