@@ -13,10 +13,10 @@ const server = Fastify({
   logger: false,
 });
 
-const corsOrigins = [/http:\/\/tracker.dxx-rebirth.com:\d+/, /https:\/\/tracker.dxx-rebirth.com:\d+/];
+const corsOrigins = [/https?:\/\/tracker.dxx-rebirth.com:?\d*/];
 
 if (process.env.NODE_ENV === "dev") {
-  corsOrigins.push(/http:\/\/localhost:\d+/);
+  corsOrigins.push(/http:\/\/localhost:?\d*/);
 }
 
 await server.register(cors, {
