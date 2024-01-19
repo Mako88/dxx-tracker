@@ -2,7 +2,7 @@ import { GameFilter } from "../../../shared/enums";
 import Game from "../../../shared/game";
 import axios, { AxiosResponse } from "axios";
 
-const host = import.meta.env.DEV ? "http://localhost" : "http://tracker.dxx-rebirth.com";
+const host = import.meta.env.DEV ? "http://localhost" : "https://tracker.dxx-rebirth.com";
 const port = "5050";
 
 interface ErrorResponse {
