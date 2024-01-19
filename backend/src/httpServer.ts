@@ -21,6 +21,7 @@ if (process.env.NODE_ENV === "dev") {
 
 await server.register(cors, {
   origin: corsOrigins,
+  methods: ["GET", "POST"],
 });
 
 server.get("/heartbeat", (request, response) => {
@@ -78,7 +79,7 @@ server.post("/games", async (request: FastifyRequest<{ Body: GetGamesRequest }>,
 
 export const start = async () => {
   try {
-    await server.listen({ port });
+    await server.listen({ port, host: "0.0.0.0" });
   } catch (err) {
     server.log.error(err);
     process.exit(1);
