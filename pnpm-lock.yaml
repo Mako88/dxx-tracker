@@ -13,6 +13,9 @@ importers:
       dayjs:
         specifier: ^1.11.10
         version: 1.11.10
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
       reflect-metadata:
         specifier: ^0.2.1
         version: 0.2.1
@@ -1687,6 +1690,11 @@ packages:
     dependencies:
       esutils: 2.0.3
     dev: true
+
+  /dotenv@16.3.1:
+    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /dottie@2.0.6:
     resolution: {integrity: sha512-iGCHkfUc5kFekGiqhe8B/mdaurD+lakO9txNnTvKtA6PISrw86LgqHvRzWYPyoE2Ph5aMIrCw9/uko6XHTKCwA==}

@@ -13,7 +13,15 @@ const server = Fastify({
   logger: false,
 });
 
-await server.register(cors);
+const corsOrigins = [/http:\/\/tracker.dxx-rebirth.com:\d+/, /https:\/\/tracker.dxx-rebirth.com:\d+/];
+
+if (process.env.NODE_ENV === "dev") {
+  corsOrigins.push(/http:\/\/localhost:\d+/);
+}
+
+await server.register(cors, {
+  origin: corsOrigins,
+});
 
 server.get("/heartbeat", (request, response) => {
   try {
@@ -30,7 +38,7 @@ server.get("/heartbeat", (request, response) => {
 
 server.post("/games/count", async (request: FastifyRequest<{ Body: GameCountRequest }>, response) => {
   try {
-    return await getGameCount(request.body.live, request.body.filter);
+    response.send(await getGameCount(request.body.live, request.body.filter));
   } catch (err) {
     console.log(err);
     response.code(500);
@@ -45,17 +53,19 @@ server.post("/games", async (request: FastifyRequest<{ Body: GetGamesRequest }>,
   try {
     const dbGames = await getGames(request.body.live, request.body.filter, request.body.page);
 
-    return dbGames.map<Game>((x: dbGame) => ({
-      version: x.VersionString,
-      name: x.Name,
-      mission: x.MissionTitle,
-      time: dayjs(x.createdAt).format("MM/DD/YY h:mm A"),
-      players: `${x.NumConnected}/${x.MaxPlayers}`,
-      mode: x.GameMode,
-      status: x.Status,
-      host: `${x.IPAddress}:${x.Port}`,
-      id: x.InternalID,
-    }));
+    response.send(
+      dbGames.map<Game>((x: dbGame) => ({
+        version: x.VersionString,
+        name: x.Name,
+        mission: x.MissionTitle,
+        time: dayjs(x.createdAt).format("MM/DD/YY h:mm A"),
+        players: `${x.NumConnected}/${x.MaxPlayers}`,
+        mode: x.GameMode,
+        status: x.Status,
+        host: `${x.IPAddress}:${x.Port}`,
+        id: x.InternalID,
+      }))
+    );
   } catch (err) {
     console.log(err);
     response.code(500);
