@@ -1,0 +1,15 @@
+{
+  "name": "dxx-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "dev": "pnpm -r run dev",
+    "fe": "pnpm -F=frontend",
+    "be": "pnpm -F=backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

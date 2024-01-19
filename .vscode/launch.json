@@ -1,0 +1,63 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Backend",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}/backend/build",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "presentation": {
+        "hidden": false,
+        "group": "1",
+        "order": 1
+      }
+    },
+    {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/frontend",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Build and Watch Frontend",
+      "request": "launch",
+      "runtimeArgs": ["dev"],
+      "runtimeExecutable": "pnpm",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "cwd": "${workspaceFolder}/frontend",
+      "presentation": {
+        "hidden": true
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Frontend",
+      "configurations": ["Launch Chrome", "Build and Watch Frontend"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "1",
+        "order": 2
+      }
+    },
+    {
+      "name": "Debug Both",
+      "configurations": ["Debug Backend", "Launch Chrome", "Build and Watch Frontend"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "2",
+        "order": 1
+      }
+    }
+  ]
+}
