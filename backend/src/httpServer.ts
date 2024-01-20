@@ -30,8 +30,9 @@ server.get("/heartbeat", (request, response) => {
   try {
     response.writeHead(200, {
       Connection: "keep-alive",
-      "content-type": "text/event-stream",
-      "cache-control": "no-cache",
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "X-Accel-Buffering": "no",
     });
 
     response.write("data: boop\n\n");
@@ -58,8 +59,9 @@ server.get("/games/count/:live/:filter", async (request, response) => {
   try {
     response.writeHead(200, {
       Connection: "keep-alive",
-      "content-type": "text/event-stream",
-      "cache-control": "no-cache",
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "X-Accel-Buffering": "no",
     });
 
     const gameCount = await getGameCount(request.params.live === "true", GameFilter[request.params.filter]);
@@ -88,8 +90,9 @@ server.get("/games/:live/:filter/:page", async (request, response) => {
   try {
     response.writeHead(200, {
       Connection: "keep-alive",
-      "content-type": "text/event-stream",
-      "cache-control": "no-cache",
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "X-Accel-Buffering": "no",
     });
 
     const formattedGames = await getFormattedGames(
