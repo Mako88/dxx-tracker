@@ -7,9 +7,6 @@ import { default as dbGame } from "./database/models/Game";
 import dayjs from "dayjs";
 import { eventEmitter } from "./utility";
 import { GameFilter } from "../../shared/enums";
-import https from "https";
-import http from "http";
-import fs from "fs";
 
 const port = 5050;
 
@@ -126,23 +123,9 @@ server.get("/games/:live/:filter/:page", async (request, response) => {
   }
 });
 
-let httpServer;
-
-if (process.env.NODE_ENV === "dev") {
-  httpServer = http.createServer(server);
-} else {
-  httpServer = https.createServer(
-    {
-      key: fs.readFileSync("/etc/letsencrypt/live/tracker.dxx-rebirth.com/privkey.pem"),
-      cert: fs.readFileSync("/etc/letsencrypt/live/tracker.dxx-rebirth.com/fullchain.pem"),
-    },
-    server
-  );
-}
-
 export const start = () => {
   try {
-    httpServer.listen(port);
+    server.listen(port);
   } catch (err) {
     console.log(err);
   }
