@@ -28,6 +28,12 @@ importers:
       dotenv:
         specifier: ^16.3.1
         version: 16.3.1
+      http:
+        specifier: 0.0.1-security
+        version: 0.0.1-security
+      https:
+        specifier: ^1.0.0
+        version: 1.0.0
       reflect-metadata:
         specifier: ^0.2.1
         version: 0.2.1
@@ -2250,6 +2256,10 @@ packages:
       - supports-color
     optional: true
 
+  /http@0.0.1-security:
+    resolution: {integrity: sha512-RnDvP10Ty9FxqOtPZuxtebw1j4L/WiqNMDtuc1YMH1XQm5TgDRaR1G9u8upL6KD1bXHSp9eSXo/ED+8Q7FAr+g==}
+    dev: false
+
   /https-proxy-agent@5.0.1:
     resolution: {integrity: sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==}
     engines: {node: '>= 6'}
@@ -2260,6 +2270,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     optional: true
+
+  /https@1.0.0:
+    resolution: {integrity: sha512-4EC57ddXrkaF0x83Oj8sM6SLQHAWXw90Skqu2M4AEWENZ3F02dFJE/GARA8igO79tcgYqGrD7ae4f5L3um2lgg==}
+    dev: false
 
   /humanize-ms@1.2.1:
     resolution: {integrity: sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==}

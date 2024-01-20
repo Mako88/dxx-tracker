@@ -4,5 +4,5 @@ import { initialize as initializeDb } from "./database/db";
 import { start as startUdpServer } from "./udpServer/udpServer";
 
 await initializeDb();
-await startServer();
+startServer();
 startUdpServer();
