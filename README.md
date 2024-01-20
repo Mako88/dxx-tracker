@@ -1,17 +1,24 @@
 # DXX-Rebirth Tracker
-This is a simple tracker for DXX-Rebirth written in .NET Core and PHP.
+This is a simple tracker for DXX-Rebirth written in React and Node.js.
 
-The tracker consists of 2 primary parts:
+## Running Locally
+Install nodejs through your package manager, or by downloading it from: https://nodejs.org (Use LTS version 20.x)
 
-1. The backend, which is written in C# and contained in the `RebirthTracker` directory
+Install pnpm by running the following in a terminal (you may need sudo if you get permission errors):
+```
+corepack enable
+corepack prepare pnpm@latest --activate
+```
+Then from the root of the tracker project run:
+```
+pnpm install
+pnpm dev
+```
+You can then browse to the frontend at `http://localhost:5173`
 
-2. The frontend. This is contained in the `web` directory and is made up of the following:
-    - `index.html` - The primary webpage
-    - `games.php` - A script to retrieve the list of games and display them
-    - `backend.php` - A script to check if the backend is actually running
+If using VS Code, you can start a debug session of both the frontend and backend by going to `Run and Debug` on the left sidebar, and running the `Debug Both` configuration. This will open a Chrome browser window for the frontend, and run the backend in the VS Code terminal (note: the backend will take a bit to compile, so when the frontend first loads it will show the backend as being down).
 
-To use this tracker, you can set the ports in `Globals.cs` (default is 9999 for the primary port and 9998 for the external ack port), then build and run using Visual Studio or the `dotnet` commandline tool.
-
+# Packet Information
 The tracker expects to receive packets in the following format: `<OPCODE><PARAMETERS>`, where `<OPCODE>` is an integer and `<PARAMETERS>` is a string of game information.
 
 The game information string is in the format `a=IP/PORT,b=HEADER,c=ID,z=BLOB`. The key `a` is reserved for the IP/Port information and is in the format `a=127.0.0.1/42424`. The key `b` is reserved for the header and is a string in any format set by the client. The key `c` is reserved for the ID of the game set by the tracker and is of type short. The key `z` is reserved for the game info blob and must be the last key of the string.
