@@ -1,3 +1,5 @@
+import EventEmitter from "events";
+
 interface KeyedLock {
   [key: string]: {
     promise: Promise<void>;
@@ -33,3 +35,5 @@ export const unlock = (key: string): Promise<void> => {
 };
 
 export const liveGameIds: number[] = [];
+
+export const eventEmitter: EventEmitter = new EventEmitter();

@@ -2,7 +2,7 @@ import type { RemoteInfo, Socket } from "dgram";
 import Game from "../../database/models/Game";
 import { GameMode } from "../../../../shared/game";
 import { clearStaleGames } from "../../database/db";
-import { liveGameIds } from "../../utility";
+import { eventEmitter, liveGameIds } from "../../utility";
 import dayjs from "dayjs";
 
 interface Packet {
@@ -66,7 +66,16 @@ const registerGame = async (packet: Buffer, rinfo: RemoteInfo, servers: Servers)
     sendAck(rinfo, servers);
   }
 
-  await setGameInfo(game, packet, rinfo);
+  setGameInfo(game, packet, rinfo);
+
+  if (game.changed()) {
+    eventEmitter.emit("gameCountChanged");
+    eventEmitter.emit("gameListChanged");
+  }
+
+  game.LastUpdated = new Date();
+
+  await game.save();
 };
 
 const canHostGame = (existingGames: Game[]): boolean => {
@@ -83,7 +92,7 @@ const canHostGame = (existingGames: Game[]): boolean => {
   return true;
 };
 
-const setGameInfo = async (game: Game, packet: Buffer, rinfo: RemoteInfo) => {
+const setGameInfo = (game: Game, packet: Buffer, rinfo: RemoteInfo) => {
   const parsedPacket = parsePacket(packet);
   const parsedBlob = parseBlob(parsedPacket.blob);
 
@@ -102,9 +111,6 @@ const setGameInfo = async (game: Game, packet: Buffer, rinfo: RemoteInfo) => {
   game.MissionName = parsedBlob.missionName;
   game.IPAddress = rinfo.address;
   game.Port = rinfo.port;
-  game.LastUpdated = new Date();
-
-  await game.save();
 
   console.log(`Set game info for game ID ${game.GameID}`);
 };

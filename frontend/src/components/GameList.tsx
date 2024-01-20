@@ -1,44 +1,33 @@
 import { useEffect, useState } from "react";
 import FilterButton from "./FilterButton";
 import { GameListType } from "../shared/enums";
-import { getGameCount, getGames } from "../api/backend";
 import Game, { GameMode } from "../../../shared/game";
 import { GameFilter } from "../../../shared/enums";
+import { getGameCountEndpoint, getGamesEndpoint } from "../api/endpoints";
 
 interface GameListProps {
   type: GameListType;
 }
 
 const GameList = ({ type }: GameListProps) => {
-  const [filter, setFilter] = useState(GameFilter.All);
+  const [filter, setFilter] = useState(GameFilter.ALL);
   const [currentPage, setCurrentPage] = useState(0);
   const [gameCount, setGameCount] = useState(0);
   const [games, setGames] = useState<Game[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game>();
-  const refreshInterval = type === GameListType.Live ? 1000 : 5000;
 
   useEffect(() => {
-    const fetchGameCount = async () => {
-      const count = await getGameCount(type === GameListType.Live, filter);
-      setGameCount(count);
+    const gameCountEventSource = new EventSource(getGameCountEndpoint(type === GameListType.Live, filter));
+    gameCountEventSource.onmessage = (e) => setGameCount(e.data);
+
+    const gamesEventSource = new EventSource(getGamesEndpoint(type === GameListType.Live, filter, currentPage));
+    gamesEventSource.onmessage = (e) => setGames(JSON.parse(e.data));
+
+    return () => {
+      gameCountEventSource.close();
+      gamesEventSource.close();
     };
-
-    const fetchGameList = async () => {
-      const games = await getGames(type === GameListType.Live, filter, currentPage);
-
-      setGames(games);
-    };
-
-    fetchGameCount();
-    fetchGameList();
-
-    const interval = setInterval(() => {
-      fetchGameCount();
-      fetchGameList();
-    }, refreshInterval);
-
-    return () => clearInterval(interval);
-  }, [filter, currentPage, type, refreshInterval]);
+  }, [filter, currentPage, type]);
 
   const getMaxCount = (): number => {
     let maxCount = currentPage * 10 + 10;
@@ -56,7 +45,7 @@ const GameList = ({ type }: GameListProps) => {
       <div className="buttons">
         <span className="filter">
           Show:&nbsp;
-          <FilterButton title="All" selected={filter === GameFilter.All} onClick={() => setFilter(GameFilter.All)} />
+          <FilterButton title="All" selected={filter === GameFilter.ALL} onClick={() => setFilter(GameFilter.ALL)} />
           <FilterButton title="D1X" selected={filter === GameFilter.D1X} onClick={() => setFilter(GameFilter.D1X)} />
           <FilterButton title="D2X" selected={filter === GameFilter.D2X} onClick={() => setFilter(GameFilter.D2X)} />
         </span>

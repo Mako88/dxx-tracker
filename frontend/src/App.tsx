@@ -1,19 +1,32 @@
 import { useEffect, useState } from "react";
 import GameList from "./components/GameList";
 import { GameListType } from "./shared/enums";
-import { heartbeat } from "./api/backend";
+import { heartbeatEndpoint } from "./api/endpoints";
 
 function App() {
   const [status, setStatus] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const result = await heartbeat();
+    let interval: number;
 
-      setStatus(result);
-    }, 5000);
+    interval = setInterval(() => {
+      setStatus(false);
+    }, 3000);
 
-    return () => clearInterval(interval);
+    const heartbeatEventSource = new EventSource(heartbeatEndpoint);
+    heartbeatEventSource.onmessage = () => {
+      clearInterval(interval);
+      interval = setInterval(() => {
+        setStatus(false);
+      }, 3000);
+
+      setStatus(true);
+    };
+
+    return () => {
+      clearInterval(interval);
+      heartbeatEventSource.close();
+    };
   }, []);
 
   return (
@@ -26,9 +39,7 @@ function App() {
 
         <div id="footer">
           <span>Tracker Backend Status: </span>
-          <span className={status ? "up" : "down"}>
-            {status ? "UP" : "DOWN"}
-          </span>
+          <span className={status ? "up" : "down"}>{status ? "UP" : "DOWN"}</span>
         </div>
       </div>
     </>

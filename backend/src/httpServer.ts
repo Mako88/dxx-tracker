@@ -1,17 +1,16 @@
-import Fastify, { FastifyRequest } from "fastify";
-import cors from "@fastify/cors";
+import express, { Request } from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
 import { getGameCount, getGames } from "./database/db";
-import GameCountRequest from "../../shared/requests/gameCount";
-import GetGamesRequest from "../../shared/requests/getGames";
 import Game from "../../shared/game";
 import { default as dbGame } from "./database/models/Game";
 import dayjs from "dayjs";
+import { eventEmitter } from "./utility";
+import { GameFilter } from "../../shared/enums";
 
 const port = 5050;
 
-const server = Fastify({
-  logger: false,
-});
+const server = express();
 
 const corsOrigins = [/https?:\/\/tracker.dxx-rebirth.com:?\d*/];
 
@@ -19,17 +18,35 @@ if (process.env.NODE_ENV === "dev") {
   corsOrigins.push(/http:\/\/localhost:?\d*/);
 }
 
-await server.register(cors, {
-  origin: corsOrigins,
-  methods: ["GET", "POST"],
-});
+server.use(
+  cors({
+    origin: corsOrigins,
+  })
+);
+
+server.use(bodyParser.json());
 
 server.get("/heartbeat", (request, response) => {
   try {
-    response.send();
+    response.writeHead(200, {
+      Connection: "keep-alive",
+      "content-type": "text/event-stream",
+      "cache-control": "no-cache",
+    });
+
+    response.write("data: boop\n\n");
+
+    const interval = setInterval(() => {
+      response.write("data: boop\n\n");
+    }, 1000);
+
+    request.removeAllListeners("close");
+    request.on("close", () => {
+      clearInterval(interval);
+    });
   } catch (err) {
     console.log(err);
-    response.code(500);
+    response.status(500);
     response.send({
       error: `An error occurred: ${err.message}`,
       stack: err.stack,
@@ -37,12 +54,29 @@ server.get("/heartbeat", (request, response) => {
   }
 });
 
-server.post("/games/count", async (request: FastifyRequest<{ Body: GameCountRequest }>, response) => {
+server.get("/games/count/:live/:filter", async (request, response) => {
   try {
-    response.send(await getGameCount(request.body.live, request.body.filter));
+    response.writeHead(200, {
+      Connection: "keep-alive",
+      "content-type": "text/event-stream",
+      "cache-control": "no-cache",
+    });
+
+    const gameCount = await getGameCount(request.params.live === "true", GameFilter[request.params.filter]);
+    response.write(`data: ${gameCount}\n\n`);
+
+    eventEmitter.addListener("gameCountChanged", async () => {
+      const gameCount = await getGameCount(request.params.live === "true", GameFilter[request.params.filter]);
+      response.write(`data: ${gameCount}\n\n`);
+    });
+
+    request.removeAllListeners("close");
+    request.on("close", () => {
+      eventEmitter.removeAllListeners("gameCountChanged");
+    });
   } catch (err) {
     console.log(err);
-    response.code(500);
+    response.status(500);
     response.send({
       error: `An error occurred: ${err.message}`,
       stack: err.stack,
@@ -50,26 +84,38 @@ server.post("/games/count", async (request: FastifyRequest<{ Body: GameCountRequ
   }
 });
 
-server.post("/games", async (request: FastifyRequest<{ Body: GetGamesRequest }>, response) => {
+server.get("/games/:live/:filter/:page", async (request, response) => {
   try {
-    const dbGames = await getGames(request.body.live, request.body.filter, request.body.page);
+    response.writeHead(200, {
+      Connection: "keep-alive",
+      "content-type": "text/event-stream",
+      "cache-control": "no-cache",
+    });
 
-    response.send(
-      dbGames.map<Game>((x: dbGame) => ({
-        version: x.VersionString,
-        name: x.Name,
-        mission: x.MissionTitle,
-        time: dayjs(x.createdAt).format("MM/DD/YY h:mm A"),
-        players: `${x.NumConnected}/${x.MaxPlayers}`,
-        mode: x.GameMode,
-        status: x.Status,
-        host: `${x.IPAddress}:${x.Port}`,
-        id: x.InternalID,
-      }))
+    const formattedGames = await getFormattedGames(
+      request.params.live === "true",
+      GameFilter[request.params.filter],
+      parseInt(request.params.page)
     );
+
+    response.write(`data: ${JSON.stringify(formattedGames)}\n\n`);
+
+    eventEmitter.addListener("gameListChanged", async () => {
+      const formattedGames = await getFormattedGames(
+        request.params.live === "true",
+        GameFilter[request.params.filter],
+        parseInt(request.params.page)
+      );
+      response.write(`data: ${JSON.stringify(formattedGames)}\n\n`);
+    });
+
+    request.removeAllListeners("close");
+    request.on("close", () => {
+      eventEmitter.removeAllListeners("gameListChanged");
+    });
   } catch (err) {
     console.log(err);
-    response.code(500);
+    response.status(500);
     response.send({
       error: `An error occurred: ${err.message}`,
       stack: err.stack,
@@ -79,9 +125,24 @@ server.post("/games", async (request: FastifyRequest<{ Body: GetGamesRequest }>,
 
 export const start = async () => {
   try {
-    await server.listen({ port, host: "0.0.0.0" });
+    await server.listen(port);
   } catch (err) {
-    server.log.error(err);
-    process.exit(1);
+    console.log(err);
   }
+};
+
+const getFormattedGames = async (live: boolean, filter: GameFilter, page: number): Promise<Game[]> => {
+  const dbGames = await getGames(live, filter, page);
+
+  return dbGames.map<Game>((x: dbGame) => ({
+    version: x.VersionString,
+    name: x.Name,
+    mission: x.MissionTitle,
+    time: dayjs(x.createdAt).format("MM/DD/YY h:mm A"),
+    players: `${x.NumConnected}/${x.MaxPlayers}`,
+    mode: x.GameMode,
+    status: x.Status,
+    host: `${x.IPAddress}:${x.Port}`,
+    id: x.InternalID,
+  }));
 };

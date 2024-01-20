@@ -52,7 +52,7 @@ export const getGameCount = async (live: boolean, filter: GameFilter) => {
       Archived: !live,
     };
 
-    if (filter !== GameFilter.All) {
+    if (filter !== GameFilter.ALL) {
       where.VersionString = {
         [Op.startsWith]: filter,
       };
@@ -74,7 +74,7 @@ export const getGames = async (live: boolean, filter: GameFilter, page: number) 
       Archived: !live,
     };
 
-    if (filter !== GameFilter.All) {
+    if (filter !== GameFilter.ALL) {
       where.VersionString = {
         [Op.startsWith]: filter,
       };
@@ -162,9 +162,11 @@ export const removeGame = async (ipAddress: string, port: number): Promise<numbe
         }
       );
     }
+
+    return game.InternalID;
   }
 
-  return game.InternalID;
+  return -1;
 };
 
 export const getGame = async (gameId: number): Promise<Game | undefined> => {
