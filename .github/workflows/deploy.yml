@@ -24,11 +24,12 @@ jobs:
 
       - name: Configure SSH
         run: |
-          ssh-agent -a /tmp/ssh_agent.sock > /dev/null
+          eval $(ssh-agent)
+          echo '#!/bin/sh' > ~/.ssh_askpass
           echo 'echo ${{ secrets.PASSPHRASE }}' > ~/.ssh_askpass && chmod +x ~/.ssh_askpass
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - >/dev/null
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - > /dev/null
 
       - name: Deploy to Server
         run: |
           scp -P ${{ secrets.PORT }} -p backend/build/dxx-tracker-backend.mjs backend/build/*.node ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/rebirth-tracker/backend
-          scp -P ${{ secrets.PORT }} -rp frontend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/rebirth-tracker/html
+          scp -P ${{ secrets.PORT }} -rp frontend/dist/ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/rebirth-tracker/html/
