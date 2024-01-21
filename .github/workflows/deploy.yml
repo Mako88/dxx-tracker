@@ -25,26 +25,24 @@ jobs:
 
       - name: Deploy Backend to Server
         uses: appleboy/scp-action@v0.1.7
-        working-directory: ./dxx-tracker/backend/build
         with:
           host: ${{ secrets.HOST }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
-          source: "dxx-tracker-backend.mjs,*.node"
+          source: "./dxx-tracker/backend/build/dxx-tracker-backend.mjs,./dxx-tracker/backend/build/*.node"
           target: /var/www/rebirth-tracker/backend
 
       - name: Deploy Frontend to Server
         uses: appleboy/scp-action@v0.1.7
-        working-directory: ./dxx-tracker/frontend
         with:
           host: ${{ secrets.HOST }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
-          source: dist/**/*
+          source: ./dxx-tracker/frontend/dist/**/*
           target: /var/www/rebirth-tracker/html
 
       - name: Restart Tracker
