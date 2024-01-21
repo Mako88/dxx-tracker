@@ -26,14 +26,9 @@ jobs:
 
       - name: Configure SSH
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/private.key
-          chmod 600 ~/.ssh/private.key
-          echo '#!/bin/sh' > ~/.ssh_askpass
           echo 'echo "${{ secrets.PASSPHRASE }}"' >> ~/.ssh_askpass && chmod +x ~/.ssh_askpass
-          eval $(ssh-agent -s -a $SSH_AUTH_SOCK)
-          DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add ~/.ssh/private.key
+          eval $(ssh-agent -s -a $SSH_AUTH_SOCK) > /dev/null
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - > /dev/null
 
       - name: Deploy to Server
         run: |
