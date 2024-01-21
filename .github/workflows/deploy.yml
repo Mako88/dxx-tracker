@@ -10,7 +10,7 @@ jobs:
           node-version: lts/Iron
 
       - name: Enable PNPM
-      - run: |
+        run: |
           corepack enable
           corepack prepare pnpm@latest --activate
 
