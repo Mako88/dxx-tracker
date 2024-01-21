@@ -30,6 +30,8 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
+          overwrite: true
+          strip_components: 2
           source: "backend/build/dxx-tracker-backend.mjs,backend/build/*.node"
           target: /var/www/rebirth-tracker/backend
 
@@ -41,7 +43,9 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
-          source: frontend/dist/**/*
+          overwrite: true
+          strip_components: 2
+          source: frontend/dist/**/*,frontent/dist/*
           target: /var/www/rebirth-tracker/html
 
       - name: Restart Tracker
