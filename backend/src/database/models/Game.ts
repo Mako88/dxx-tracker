@@ -1,12 +1,13 @@
-import { DataTypes } from "sequelize";
-import { Column, Model, Table } from "sequelize-typescript";
+import { CreationOptional, DataTypes, Model } from "@sequelize/core";
+import { Attribute, Table } from "@sequelize/core/decorators-legacy";
+import { Difficulty, GameMode } from "../../../../shared/game";
 
 @Table({
   modelName: "Game",
   tableName: "Games",
 })
 class Game extends Model {
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -14,113 +15,116 @@ class Game extends Model {
   })
   declare InternalID: number;
 
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
   declare GameID: number;
 
-  @Column({
+  @Attribute({
     type: DataTypes.TEXT,
     allowNull: true,
   })
   declare Header: string;
 
-  @Column({
+  @Attribute({
     type: DataTypes.BLOB,
     allowNull: true,
   })
   declare Blob: Buffer;
 
-  @Column({
+  @Attribute({
     type: DataTypes.TEXT,
     allowNull: false,
   })
   declare IPAddress: string;
 
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
   declare Port: number;
 
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
-  declare GameMode: number;
+  declare GameMode: GameMode;
 
-  @Column({
+  @Attribute({
     type: DataTypes.TEXT,
     allowNull: true,
   })
   declare VersionString: string;
 
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
   declare LevelNumber: number;
 
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
-  declare Difficulty: number;
+  declare Difficulty: Difficulty;
 
-  @Column({
+  @Attribute({
     type: DataTypes.TEXT,
     allowNull: true,
   })
   declare Status: string;
 
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
   declare NumConnected: number;
 
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
   declare MaxPlayers: number;
 
-  @Column({
+  @Attribute({
     type: DataTypes.TEXT,
     allowNull: true,
   })
   declare Name: string;
 
-  @Column({
+  @Attribute({
     type: DataTypes.TEXT,
     allowNull: true,
   })
   declare MissionTitle: string;
 
-  @Column({
+  @Attribute({
     type: DataTypes.TEXT,
     allowNull: true,
   })
   declare MissionName: string;
 
-  @Column({
+  @Attribute({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
   declare DescentVersion: number;
 
-  @Column({
+  @Attribute({
     type: DataTypes.DATE,
     allowNull: false,
   })
   declare LastUpdated: Date;
 
-  @Column({
-    type: DataTypes.INTEGER,
+  @Attribute({
+    type: DataTypes.BOOLEAN,
     allowNull: false,
   })
-  declare Archived: number;
+  declare Archived: boolean;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 export default Game;

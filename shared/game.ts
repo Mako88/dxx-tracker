@@ -20,3 +20,11 @@ export enum GameMode {
   "Team Hoard",
   "Bounty",
 }
+
+export enum Difficulty {
+  Trainee,
+  Rookie,
+  Hotshot,
+  Ace,
+  Insane,
+}

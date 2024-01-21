@@ -1,6 +1,6 @@
 import type { RemoteInfo, Socket } from "dgram";
 import Game from "../../database/models/Game";
-import { GameMode } from "../../../../shared/game";
+import { Difficulty, GameMode } from "../../../../shared/game";
 import { clearStaleGames } from "../../database/db";
 import { eventEmitter, liveGameIds } from "../../utility";
 import dayjs from "dayjs";
@@ -8,14 +8,6 @@ import dayjs from "dayjs";
 interface Packet {
   header: string;
   blob: Buffer;
-}
-
-enum Difficulty {
-  Trainee,
-  Rookie,
-  Hotshot,
-  Ace,
-  Insane,
 }
 
 interface ParsedBlob {
@@ -54,7 +46,7 @@ const registerGame = async (packet: Buffer, rinfo: RemoteInfo, servers: Servers)
   let game = existingGames.find((x) => x.Port === rinfo.port);
 
   if (!game) {
-    game = new Game({
+    game = Game.build({
       GameID: generateGameId(),
       Archived: false,
     });

@@ -1,21 +1,22 @@
 import path, { dirname } from "path";
-import { Sequelize } from "sequelize-typescript";
 import { SequelizeStorage, Umzug } from "umzug";
 import { fileURLToPath } from "url";
 import Game from "./models/Game";
 import migrations from "./migrations";
 import { GameFilter } from "../../../shared/enums";
-import { Op, WhereOptions, Transaction } from "sequelize";
+import Sequelize, { Op, WhereOptions, TransactionType } from "@sequelize/core";
 import dayjs from "dayjs";
+import sqlite3 from "sqlite3";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const db = new Sequelize({
   dialect: "sqlite",
+  dialectModule: sqlite3,
   storage: path.join(__dirname, "games.sqlite"),
   models: [Game],
   logging: false,
-  transactionType: Transaction.TYPES.IMMEDIATE,
+  transactionType: TransactionType.IMMEDIATE,
 });
 
 const umzug = new Umzug({
