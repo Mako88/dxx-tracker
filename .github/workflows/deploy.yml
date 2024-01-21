@@ -24,7 +24,7 @@ jobs:
 
       - name: Configure SSH
         run: |
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-agent -a /tmp/ssh_agent.sock > /dev/null
           echo 'echo ${{ secrets.PASSPHRASE }}' > ~/.ssh_askpass && chmod +x ~/.ssh_askpass
           echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - >/dev/null
 
