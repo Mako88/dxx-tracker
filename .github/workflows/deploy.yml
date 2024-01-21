@@ -38,4 +38,4 @@ jobs:
       - name: Deploy to Server
         run: |
           scp -o 'StrictHostKeyChecking no' -P ${{ secrets.PORT }} -p backend/build/dxx-tracker-backend.mjs backend/build/*.node ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/rebirth-tracker/backend
-          scp -o 'StrictHostKeyChecking no' -P ${{ secrets.PORT }} -rp frontend/dist/ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/rebirth-tracker/html/
+          scp -o 'StrictHostKeyChecking no' -P ${{ secrets.PORT }} -rp frontend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/rebirth-tracker/html/
