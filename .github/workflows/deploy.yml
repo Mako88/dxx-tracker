@@ -1,5 +1,7 @@
 name: Build and Deploy
 on: [workflow_dispatch]
+env:
+  SSH_AUTH_SOCK: /tmp/ssh_agent.sock
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -30,7 +32,7 @@ jobs:
           chmod 600 ~/.ssh/private.key
           echo '#!/bin/sh' > ~/.ssh_askpass
           echo 'echo "${{ secrets.PASSPHRASE }}"' >> ~/.ssh_askpass && chmod +x ~/.ssh_askpass
-          eval $(ssh-agent -s -a /tmp/ssh_agent.sock)
+          eval $(ssh-agent -s -a $SSH_AUTH_SOCK)
           DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add ~/.ssh/private.key
 
       - name: Deploy to Server
