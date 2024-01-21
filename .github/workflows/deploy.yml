@@ -56,4 +56,4 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
-          script: pm2 restart dxx-tracker-backend
+          script: /home/${{ secrest.USERNAME }}/.local/share/pnpm/pm2 restart dxx-tracker-backend
