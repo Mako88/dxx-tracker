@@ -30,9 +30,8 @@ jobs:
           chmod 600 ~/.ssh/private.key
           echo '#!/bin/sh' > ~/.ssh_askpass
           echo 'echo "${{ secrets.PASSPHRASE }}"' >> ~/.ssh_askpass && chmod +x ~/.ssh_askpass
-          eval $(ssh-agent -s)
+          eval $(ssh-agent -s -a /tmp/ssh_agent.sock)
           DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add ~/.ssh/private.key
-          ssh-add -l
 
       - name: Deploy to Server
         run: |
