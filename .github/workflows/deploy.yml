@@ -1,0 +1,58 @@
+name: Build and Deploy
+on: [workflow_dispatch]
+jobs:
+  Build and Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/Iron
+
+      - name: Enable PNPM
+      - run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Build
+        working-directory: ./dxx-tracker
+        run: |
+          pnpm install
+          pnpm build
+
+      - name: Deploy Backend to Server
+        uses: appleboy/scp-action@v0.1.7
+        working-directory: ./dxx-tracker/backend/build
+        with:
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          source: "dxx-tracker-backend.mjs,*.node"
+          target: /var/www/rebirth-tracker/backend
+
+      - name: Deploy Frontend to Server
+        uses: appleboy/scp-action@v0.1.7
+        working-directory: ./dxx-tracker/frontend
+        with:
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          source: dist/**/*
+          target: /var/www/rebirth-tracker/html
+
+      - name: Restart Tracker
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          script: pm2 restart dxx-tracker-backend

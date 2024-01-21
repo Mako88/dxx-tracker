@@ -11,7 +11,7 @@ const dev = process.env.ROLLUP_WATCH === "true";
 const config: RollupOptions = {
   input: "src/main.ts",
   output: {
-    file: "build/bundle.mjs",
+    file: "build/dxx-tracker-backend.mjs",
     format: "es",
     sourcemap: dev,
   },
