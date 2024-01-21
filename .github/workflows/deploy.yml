@@ -22,38 +22,13 @@ jobs:
           pnpm install
           pnpm build
 
-      - name: Deploy Backend to Server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          overwrite: true
-          strip_components: 2
-          source: "backend/build/dxx-tracker-backend.mjs,backend/build/*.node"
-          target: /var/www/rebirth-tracker/backend
+      - name: Configure SSH
+        run: |
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          echo 'echo ${{ secrets.PASSPHRASE }}' > ~/.ssh_askpass && chmod +x ~/.ssh_askpass
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - >/dev/null
 
-      - name: Deploy Frontend to Server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          overwrite: true
-          strip_components: 2
-          source: frontend/dist/**/*,frontent/dist/*
-          target: /var/www/rebirth-tracker/html
-
-      - name: Restart Tracker
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          script: /home/${{ secrets.USERNAME }}/.local/share/pnpm/pm2 restart dxx-tracker-backend
+      - name: Deploy to Server
+        run: |
+          scp -P ${{ secrets.PORT }} -p backend/build/dxx-tracker-backend.mjs backend/build/*.node ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/rebirth-tracker/backend
+          scp -P ${{ secrets.PORT }} -rp frontend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/rebirth-tracker/html
