@@ -23,10 +23,12 @@ const GameList = ({ type }: GameListProps) => {
     const gamesEventSource = new EventSource(getGamesEndpoint(type === GameListType.Live, filter, currentPage));
     gamesEventSource.onmessage = (e) => setGames(JSON.parse(e.data));
 
-    return () => {
+    console.log("FIRED!");
+
+    /*return () => {
       gameCountEventSource.close();
       gamesEventSource.close();
-    };
+    };*/
   }, [filter, currentPage, type]);
 
   const getMaxCount = (): number => {
@@ -105,13 +107,15 @@ const GameList = ({ type }: GameListProps) => {
                       }
                     }}
                   >
-                    {game.name || "None"}
+                    {game.name?.trim() || "None"}
                   </a>
                 </td>
                 <td width="29.8%">
                   {game.mission.toLowerCase() === "descent: first strike" ||
                   game.mission.toLowerCase() === "descent 2: counterstrike!" ? (
                     game.mission
+                  ) : game.mission?.trim() === "" ? (
+                    "None"
                   ) : (
                     <a target="_blank" href={`https://sectorgame.com/dxma/?q=${game.mission}`}>
                       {game.mission}
