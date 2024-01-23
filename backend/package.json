@@ -16,13 +16,13 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-run": "^3.0.2",
-    "@types/node": "^20.11.0",
+    "@types/node": "^20.11.5",
     "@types/validator": "^13.11.8",
-    "rollup": "^4.9.5",
+    "rollup": "^4.9.6",
     "rollup-plugin-natives": "^0.7.8",
     "rollup-plugin-typescript2": "^0.36.0",
     "tslib": "^2.6.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "@sequelize/core": "7.0.0-alpha.34",
@@ -31,10 +31,10 @@
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dayjs": "^1.11.10",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.3.2",
     "express": "^4.18.2",
     "reflect-metadata": "^0.2.1",
     "sqlite3": "^5.1.7",
-    "umzug": "^3.5.0"
+    "umzug": "^3.5.1"
   }
 }
