@@ -23,12 +23,10 @@ const GameList = ({ type }: GameListProps) => {
     const gamesEventSource = new EventSource(getGamesEndpoint(type === GameListType.Live, filter, currentPage));
     gamesEventSource.onmessage = (e) => setGames(JSON.parse(e.data));
 
-    console.log("FIRED!");
-
-    /*return () => {
+    return () => {
       gameCountEventSource.close();
       gamesEventSource.close();
-    };*/
+    };
   }, [filter, currentPage, type]);
 
   const getMaxCount = (): number => {

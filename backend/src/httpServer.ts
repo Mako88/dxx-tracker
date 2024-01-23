@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { getGameCount, getGames } from "./database/db";
@@ -28,12 +28,7 @@ server.use(bodyParser.json());
 
 server.get("/heartbeat", (request, response) => {
   try {
-    response.writeHead(200, {
-      Connection: "keep-alive",
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "X-Accel-Buffering": "no",
-    });
+    writeHeaders(response);
 
     response.write("data: boop\n\n");
 
@@ -41,9 +36,10 @@ server.get("/heartbeat", (request, response) => {
       response.write("data: boop\n\n");
     }, 1000);
 
-    request.removeAllListeners("close");
-    request.on("close", () => {
+    response.removeAllListeners("close");
+    response.on("close", () => {
       clearInterval(interval);
+      response.end();
     });
   } catch (err) {
     console.log(err);
@@ -57,12 +53,7 @@ server.get("/heartbeat", (request, response) => {
 
 server.get("/games/count/:live/:filter", async (request, response) => {
   try {
-    response.writeHead(200, {
-      Connection: "keep-alive",
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "X-Accel-Buffering": "no",
-    });
+    writeHeaders(response);
 
     const gameCount = await getGameCount(request.params.live === "true", GameFilter[request.params.filter]);
     response.write(`data: ${gameCount}\n\n`);
@@ -72,9 +63,10 @@ server.get("/games/count/:live/:filter", async (request, response) => {
       response.write(`data: ${gameCount}\n\n`);
     });
 
-    request.removeAllListeners("close");
-    request.on("close", () => {
+    response.removeAllListeners("close");
+    response.on("close", () => {
       eventEmitter.removeAllListeners("gameCountChanged");
+      response.end();
     });
   } catch (err) {
     console.log(err);
@@ -88,12 +80,7 @@ server.get("/games/count/:live/:filter", async (request, response) => {
 
 server.get("/games/:live/:filter/:page", async (request, response) => {
   try {
-    response.writeHead(200, {
-      Connection: "keep-alive",
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "X-Accel-Buffering": "no",
-    });
+    writeHeaders(response);
 
     const formattedGames = await getFormattedGames(
       request.params.live === "true",
@@ -112,9 +99,10 @@ server.get("/games/:live/:filter/:page", async (request, response) => {
       response.write(`data: ${JSON.stringify(formattedGames)}\n\n`);
     });
 
-    request.removeAllListeners("close");
-    request.on("close", () => {
+    response.removeAllListeners("close");
+    response.on("close", () => {
       eventEmitter.removeAllListeners("gameListChanged");
+      response.end();
     });
   } catch (err) {
     console.log(err);
@@ -132,6 +120,15 @@ export const start = () => {
   } catch (err) {
     console.log(err);
   }
+};
+
+const writeHeaders = (response: Response) => {
+  response.writeHead(200, {
+    Connection: "keep-alive",
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    "X-Accel-Buffering": "no",
+  });
 };
 
 const getFormattedGames = async (live: boolean, filter: GameFilter, page: number): Promise<Game[]> => {
