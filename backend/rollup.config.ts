@@ -21,7 +21,7 @@ const config: RollupOptions = {
       targetEsm: true,
     }),
     typescript(),
-    nodeResolve({ preferBuiltins: true }),
+    nodeResolve({ preferBuiltins: true, exportConditions: ["node"] }),
     commonjs(),
     json(),
     dev && run(),

@@ -11,18 +11,19 @@ jobs:
         with:
           node-version: lts/Iron
 
-      - name: Enable PNPM
-        run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
-
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      # pnpm comes from package.json's packageManager field. pnpm 10+ skips dependency install
+      # scripts by default, which would leave the build without sqlite3's native module.
+      - name: Enable PNPM
+        run: corepack enable
+
       - name: Build
         run: |
-          pnpm install
+          pnpm install --frozen-lockfile
           pnpm build
+          test -f backend/build/node_sqlite3.node
 
       - name: Configure SSH
         run: |
