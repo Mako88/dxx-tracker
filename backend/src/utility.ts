@@ -1,39 +1,34 @@
 import EventEmitter from "events";
 
-interface KeyedLock {
-  [key: string]: {
-    promise: Promise<void>;
-    resolver: () => void;
-  };
-}
+// Per-key mutual exclusion. Each caller chains onto the previous holder's promise, so waiters run
+// strictly one at a time; the key is dropped once its queue drains, so the map does not grow per client.
+const locker = new Map<string, Promise<void>>();
 
-const locker: KeyedLock = {};
+export const withLock = async <T>(key: string, work: () => Promise<T>): Promise<T> => {
+  const previous = locker.get(key) ?? Promise.resolve();
+  let release: () => void = () => {};
+  const current = new Promise<void>((resolve) => (release = resolve));
+  const tail = previous.then(() => current);
+  locker.set(key, tail);
 
-export const lock = async (key: string): Promise<void> => {
-  if (!locker[key]) {
-    locker[key] = {
-      promise: Promise.resolve(),
-      resolver: () => {},
-    };
+  await previous;
+
+  try {
+    return await work();
+  } finally {
+    release();
+    if (locker.get(key) === tail) {
+      locker.delete(key);
+    }
   }
-
-  await locker[key].promise;
-
-  locker[key].promise = new Promise((resolve) => (locker[key].resolver = resolve));
 };
-
-export const unlock = (key: string): Promise<void> => {
-  if (!locker[key]) {
-    locker[key] = {
-      promise: Promise.resolve(),
-      resolver: () => {},
-    };
-    return;
-  }
-
-  locker[key].resolver();
-};
-
-export const liveGameIds: number[] = [];
 
 export const eventEmitter: EventEmitter = new EventEmitter();
+
+// Every open SSE stream adds a listener; the default cap of 10 would only print a false leak warning.
+eventEmitter.setMaxListeners(0);
+
+export const notifyGamesChanged = () => {
+  eventEmitter.emit("gameCountChanged");
+  eventEmitter.emit("gameListChanged");
+};

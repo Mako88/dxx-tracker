@@ -7,6 +7,7 @@ import { GameFilter } from "../../../shared/enums";
 import Sequelize, { Op, WhereOptions, TransactionType } from "@sequelize/core";
 import dayjs from "dayjs";
 import sqlite3 from "sqlite3";
+import { notifyGamesChanged } from "../utility";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -26,7 +27,17 @@ const umzug = new Umzug({
   logger: console,
 });
 
-let clearingStaleGames = false;
+// The sweep in flight, if any. Concurrent callers share it instead of getting nothing back.
+let staleSweep: Promise<Game[]> | undefined;
+
+// A rejected promise inside a timer is an unhandled rejection, which ends the process on Node 15+.
+const logErrors = (work: () => Promise<unknown>) => async () => {
+  try {
+    await work();
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 export const initialize = async () => {
   try {
@@ -35,113 +46,93 @@ export const initialize = async () => {
     await clearStaleGames();
     await deleteOldGames();
 
-    setInterval(async () => {
-      await clearStaleGames();
-    }, 10000);
-
-    setInterval(async () => {
-      await deleteOldGames();
-    }, 3600000);
+    setInterval(logErrors(clearStaleGames), 10000);
+    setInterval(logErrors(deleteOldGames), 3600000);
   } catch (err) {
     console.log(err);
   }
+};
+
+const listWhere = (live: boolean, filter: GameFilter): WhereOptions<Game> => {
+  const where: WhereOptions<Game> = {
+    Archived: !live,
+  };
+
+  if (filter !== GameFilter.ALL) {
+    where.VersionString = {
+      [Op.startsWith]: filter,
+    };
+  }
+
+  return where;
 };
 
 export const getGameCount = async (live: boolean, filter: GameFilter) => {
-  try {
-    const where: WhereOptions<Game> = {
-      Archived: !live,
-    };
-
-    if (filter !== GameFilter.ALL) {
-      where.VersionString = {
-        [Op.startsWith]: filter,
-      };
-    }
-
-    const count = await Game.count({
-      where,
-    });
-
-    return count;
-  } catch (err) {
-    console.log(err);
-  }
+  return await Game.count({
+    where: listWhere(live, filter),
+  });
 };
 
 export const getGames = async (live: boolean, filter: GameFilter, page: number) => {
-  try {
-    const where: WhereOptions<Game> = {
-      Archived: !live,
-    };
-
-    if (filter !== GameFilter.ALL) {
-      where.VersionString = {
-        [Op.startsWith]: filter,
-      };
-    }
-
-    return await Game.findAll({
-      where,
-      limit: 10,
-      offset: page * 10,
-      order: [["createdAt", "DESC"]],
-    });
-  } catch (err) {
-    console.log(err);
-  }
+  return await Game.findAll({
+    where: listWhere(live, filter),
+    limit: 10,
+    offset: page * 10,
+    order: [["createdAt", "DESC"]],
+  });
 };
 
+// Errors propagate: callers log them, and a failed read never looks like "no games".
 export const getHostedGames = async (ipAddress?: string) => {
-  try {
-    const where: WhereOptions<Game> = {
-      Archived: false,
-    };
+  const where: WhereOptions<Game> = {
+    Archived: false,
+  };
 
-    if (ipAddress) {
-      where.IPAddress = ipAddress;
-    }
-
-    return await Game.findAll({
-      where,
-    });
-  } catch (err) {
-    console.log(err);
+  if (ipAddress) {
+    where.IPAddress = ipAddress;
   }
+
+  return await Game.findAll({
+    where,
+  });
 };
 
-export const clearStaleGames = async (): Promise<Game[]> => {
-  if (clearingStaleGames) {
-    return;
-  }
+// Archives (or, while still forming, deletes) games not heard from in 30 seconds and returns the rest.
+export const clearStaleGames = (): Promise<Game[]> => {
+  staleSweep ??= sweepStaleGames().finally(() => (staleSweep = undefined));
 
-  clearingStaleGames = true;
+  return staleSweep;
+};
 
+const sweepStaleGames = async (): Promise<Game[]> => {
   const liveGames = await getHostedGames();
 
   const staleGames = liveGames.filter((x) => dayjs().subtract(30, "seconds").isAfter(dayjs(x.LastUpdated)));
 
-  await Game.destroy({
-    where: {
-      InternalID: staleGames.filter((x) => x.Status === "Forming").map((x) => x.InternalID),
-    },
-  });
-
-  await Game.update(
-    { Archived: true },
-    {
+  if (staleGames.length > 0) {
+    await Game.destroy({
       where: {
-        InternalID: staleGames.filter((x) => x.Status !== "Forming").map((x) => x.InternalID),
+        InternalID: staleGames.filter((x) => x.Status === "Forming").map((x) => x.InternalID),
       },
-    }
-  );
+    });
 
-  clearingStaleGames = false;
+    await Game.update(
+      { Archived: true },
+      {
+        where: {
+          InternalID: staleGames.filter((x) => x.Status !== "Forming").map((x) => x.InternalID),
+        },
+      }
+    );
 
-  return liveGames.filter((x) => !staleGames.includes(x)) || [];
+    notifyGamesChanged();
+  }
+
+  return liveGames.filter((x) => !staleGames.includes(x));
 };
 
-export const removeGame = async (ipAddress: string, port: number): Promise<number> => {
+// Returns whether a live game hosted from that address and port was found and removed.
+export const removeGame = async (ipAddress: string, port: number): Promise<boolean> => {
   const liveGames = await getHostedGames();
 
   const game = liveGames.find((x) => x.IPAddress === ipAddress && x.Port === port);
@@ -164,10 +155,10 @@ export const removeGame = async (ipAddress: string, port: number): Promise<numbe
       );
     }
 
-    return game.InternalID;
+    return true;
   }
 
-  return -1;
+  return false;
 };
 
 export const getGame = async (gameId: number): Promise<Game | undefined> => {
@@ -177,11 +168,15 @@ export const getGame = async (gameId: number): Promise<Game | undefined> => {
 };
 
 const deleteOldGames = async () => {
-  await Game.destroy({
+  const deleted = await Game.destroy({
     where: {
       createdAt: {
         [Op.lt]: dayjs().subtract(30, "days").toDate(),
       },
     },
   });
+
+  if (deleted > 0) {
+    notifyGamesChanged();
+  }
 };

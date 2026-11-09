@@ -1,6 +1,6 @@
-import dgram, { RemoteInfo } from "node:dgram";
+import dgram from "node:dgram";
 import registerGame from "./packetHandlers/registerGame";
-import { lock, unlock } from "../utility";
+import { withLock } from "../utility";
 import unregisterGame from "./packetHandlers/unregisterGame";
 import listGames from "./packetHandlers/listGames";
 import holePunch from "./packetHandlers/holePunch";
@@ -8,23 +8,24 @@ import holePunch from "./packetHandlers/holePunch";
 const mainServer = dgram.createSocket("udp4");
 const ackServer = dgram.createSocket("udp4");
 
-mainServer.on("error", (err) => {
-  console.error(`UDP server error:\n${err.stack}`);
-  mainServer.close();
-});
+// A failed send (to an unreachable client, say) also arrives here. Closing the socket for that would
+// stop the tracker for everyone, so only a failure to bind is fatal; pm2 then restarts the process.
+const onSocketError = (name: string) => (err: NodeJS.ErrnoException) => {
+  console.error(`UDP ${name} server error:\n${err.stack}`);
 
-ackServer.on("error", (err) => {
-  console.error(`UDP server error:\n${err.stack}`);
-  ackServer.close();
-});
+  if (err.syscall === "bind") {
+    process.exit(1);
+  }
+};
+
+mainServer.on("error", onSocketError("main"));
+ackServer.on("error", onSocketError("ack"));
 
 mainServer.on("message", async (packet, rinfo) => {
   try {
     console.log(`Server got opcode ${packet[0]} from ${rinfo.address}:${rinfo.port}`);
 
-    await lock(`${packet[0]}-${rinfo.address}-${rinfo.port}`);
-
-    try {
+    await withLock(`${packet[0]}-${rinfo.address}-${rinfo.port}`, async () => {
       switch (packet[0]) {
         case 21:
           await registerGame(packet, rinfo, { mainServer, ackServer });
@@ -42,11 +43,7 @@ mainServer.on("message", async (packet, rinfo) => {
           console.log(`Got unknown opcode ${packet[0]}`);
           break;
       }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      unlock(`${packet[0]}-${rinfo.address}-${rinfo.port}`);
-    }
+    });
   } catch (err) {
     console.log(err);
   }

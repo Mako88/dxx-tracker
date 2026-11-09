@@ -1,4 +1,4 @@
-import express, { Response } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { getGameCount, getGames } from "./database/db";
@@ -27,91 +27,49 @@ server.use(
 server.use(bodyParser.json());
 
 server.get("/heartbeat", (request, response) => {
-  try {
-    writeHeaders(response);
+  writeHeaders(response);
 
-    response.write("data: boop\n\n");
+  response.write("data: boop\n\n");
 
-    const interval = setInterval(() => {
-      response.write("data: boop\n\n");
-    }, 1000);
+  const interval = setInterval(() => {
+    send(response, "boop");
+  }, 1000);
 
-    response.removeAllListeners("close");
-    response.on("close", () => {
-      clearInterval(interval);
-      response.end();
-    });
-  } catch (err) {
-    console.log(err);
-    response.status(500);
-    response.send({
-      error: `An error occurred: ${err.message}`,
-      stack: err.stack,
-    });
-  }
+  response.on("close", () => {
+    clearInterval(interval);
+    response.end();
+  });
 });
 
-server.get("/games/count/:live/:filter", async (request, response) => {
-  try {
-    writeHeaders(response);
+server.get("/games/count/:live/:filter", (request, response) => {
+  const filter = parseFilter(request.params.filter);
 
-    const gameCount = await getGameCount(request.params.live === "true", GameFilter[request.params.filter]);
-    response.write(`data: ${gameCount}\n\n`);
-
-    eventEmitter.addListener("gameCountChanged", async () => {
-      const gameCount = await getGameCount(request.params.live === "true", GameFilter[request.params.filter]);
-      response.write(`data: ${gameCount}\n\n`);
-    });
-
-    response.removeAllListeners("close");
-    response.on("close", () => {
-      eventEmitter.removeAllListeners("gameCountChanged");
-      response.end();
-    });
-  } catch (err) {
-    console.log(err);
-    response.status(500);
-    response.send({
-      error: `An error occurred: ${err.message}`,
-      stack: err.stack,
-    });
+  if (!filter) {
+    return badRequest(response, `Unknown filter "${request.params.filter}"`);
   }
+
+  const live = request.params.live === "true";
+
+  stream(request, response, "gameCountChanged", async () => String(await getGameCount(live, filter)));
 });
 
-server.get("/games/:live/:filter/:page", async (request, response) => {
-  try {
-    writeHeaders(response);
+server.get("/games/:live/:filter/:page", (request, response) => {
+  const filter = parseFilter(request.params.filter);
 
-    const formattedGames = await getFormattedGames(
-      request.params.live === "true",
-      GameFilter[request.params.filter],
-      parseInt(request.params.page)
-    );
-
-    response.write(`data: ${JSON.stringify(formattedGames)}\n\n`);
-
-    eventEmitter.addListener("gameListChanged", async () => {
-      const formattedGames = await getFormattedGames(
-        request.params.live === "true",
-        GameFilter[request.params.filter],
-        parseInt(request.params.page)
-      );
-      response.write(`data: ${JSON.stringify(formattedGames)}\n\n`);
-    });
-
-    response.removeAllListeners("close");
-    response.on("close", () => {
-      eventEmitter.removeAllListeners("gameListChanged");
-      response.end();
-    });
-  } catch (err) {
-    console.log(err);
-    response.status(500);
-    response.send({
-      error: `An error occurred: ${err.message}`,
-      stack: err.stack,
-    });
+  if (!filter) {
+    return badRequest(response, `Unknown filter "${request.params.filter}"`);
   }
+
+  if (!/^\d+$/.test(request.params.page)) {
+    return badRequest(response, `Page must be a non-negative integer, got "${request.params.page}"`);
+  }
+
+  const live = request.params.live === "true";
+  const page = parseInt(request.params.page);
+
+  stream(request, response, "gameListChanged", async () =>
+    JSON.stringify(await getFormattedGames(live, filter, page))
+  );
 });
 
 export const start = () => {
@@ -119,6 +77,43 @@ export const start = () => {
     server.listen(port);
   } catch (err) {
     console.log(err);
+  }
+};
+
+// Filters match case-insensitively: "all" and "ALL" are the same filter.
+const parseFilter = (value: string): GameFilter | undefined => GameFilter[value.toUpperCase() as keyof typeof GameFilter];
+
+const badRequest = (response: Response, message: string) => {
+  response.status(400).send({ error: message });
+};
+
+// Serves an SSE stream: the current value at once, then again whenever `event` fires,
+// until this client disconnects. Only this client's listener is removed when it does.
+const stream = (request: Request, response: Response, event: string, read: () => Promise<string>) => {
+  writeHeaders(response);
+
+  const push = async () => {
+    try {
+      send(response, await read());
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  eventEmitter.addListener(event, push);
+
+  response.on("close", () => {
+    eventEmitter.removeListener(event, push);
+    response.end();
+  });
+
+  void push();
+};
+
+// A push can resolve after the client has gone; writing then would raise an error on the response.
+const send = (response: Response, data: string) => {
+  if (!response.writableEnded && !response.destroyed) {
+    response.write(`data: ${data}\n\n`);
   }
 };
 

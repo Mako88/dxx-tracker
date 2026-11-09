@@ -2,7 +2,7 @@ import type { RemoteInfo, Socket } from "dgram";
 import Game from "../../database/models/Game";
 import { Difficulty, GameMode } from "../../../../shared/game";
 import { clearStaleGames } from "../../database/db";
-import { eventEmitter, liveGameIds } from "../../utility";
+import { notifyGamesChanged } from "../../utility";
 import dayjs from "dayjs";
 
 interface Packet {
@@ -47,13 +47,11 @@ const registerGame = async (packet: Buffer, rinfo: RemoteInfo, servers: Servers)
 
   if (!game) {
     game = Game.build({
-      GameID: generateGameId(),
+      GameID: generateGameId(liveGames),
       Archived: false,
     });
 
     console.log(`Created game with ID ${game.GameID}`);
-
-    liveGameIds.push(game.GameID);
 
     sendAck(rinfo, servers);
   }
@@ -61,8 +59,7 @@ const registerGame = async (packet: Buffer, rinfo: RemoteInfo, servers: Servers)
   setGameInfo(game, packet, rinfo);
 
   if (game.changed()) {
-    eventEmitter.emit("gameCountChanged");
-    eventEmitter.emit("gameListChanged");
+    notifyGamesChanged();
   }
 
   game.LastUpdated = new Date();
@@ -107,10 +104,12 @@ const setGameInfo = (game: Game, packet: Buffer, rinfo: RemoteInfo) => {
   console.log(`Set game info for game ID ${game.GameID}`);
 };
 
-const generateGameId = (): number => {
+// Unique among the games currently live (the caller caps those below 65534, so this terminates).
+const generateGameId = (liveGames: Game[]): number => {
+  const taken = new Set(liveGames.map((x) => x.GameID));
   let gameId = Math.floor(Math.random() * 65534) + 1;
 
-  while (liveGameIds.indexOf(gameId) !== -1) {
+  while (taken.has(gameId)) {
     gameId = Math.floor(Math.random() * 65534) + 1;
   }
 
@@ -149,8 +148,14 @@ const getStatus = (refusePlayers: number, status: number, flag: number) => {
   return "Between";
 };
 
+// Reads a NUL-terminated string starting at byte `start`, stopping at byte `max` at most.
+// Returns the byte offset just past it, so the next field starts in the right place even when the
+// string holds multi-byte UTF-8 characters.
 const getString = (blob: Buffer, start: number, max: number) => {
-  return blob.toString("utf-8", start, Math.min(max, blob.indexOf(0, start)));
+  const nul = blob.indexOf(0, start);
+  const end = nul === -1 ? Math.min(max, blob.length) : Math.min(max, nul);
+
+  return { value: blob.toString("utf-8", start, end), next: end + 1 };
 };
 
 const parseBlob = (blob: Buffer): ParsedBlob => {
@@ -172,8 +177,8 @@ const parseBlob = (blob: Buffer): ParsedBlob => {
   // 63-87 - Mission Name
 
   const name = getString(blob, 22, 37);
-  const missionTitle = getString(blob, 23 + name.length, 62);
-  const missionName = getString(blob, 24 + name.length + missionTitle.length, 87);
+  const missionTitle = getString(blob, name.next, 62);
+  const missionName = getString(blob, missionTitle.next, 87);
 
   return {
     levelNumber: blob.readInt32LE(11),
@@ -182,9 +187,9 @@ const parseBlob = (blob: Buffer): ParsedBlob => {
     numConnected: blob[19],
     maxPlayers: blob[20],
     status: getStatus(blob[16], blob[18], blob[21]),
-    name,
-    missionTitle,
-    missionName,
+    name: name.value,
+    missionTitle: missionTitle.value,
+    missionName: missionName.value,
   };
 };
 
